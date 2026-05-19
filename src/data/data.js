@@ -20,7 +20,7 @@ export const speakers = [
   { id: 4, name: 'Kristin Watson', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=44', bgColor: '#E2E2E2' },
 ];
 
-export const categoriesData = [
+export const categorieData = [
   { icon: 'fas fa-bullhorn', title: 'Digital Marketing', bgColor: '#e0f2fe', color: '#0369a1' },
   { icon: 'fas fa-window-maximize', title: 'UI/UX Design', bgColor: '#ebebf9', color: '#312e81' },
   { icon: 'fas fa-cube', title: '3D Visual Design', bgColor: '#fcefdc', color: '#9a3412' },
@@ -34,3 +34,26 @@ export const categoriesData = [
   { icon: 'fas fa-cube', title: '3D Visual Design ', bgColor: '#fcefdc', color: '#9a3412' },
   { icon: 'fas fa-palette', title: 'Art & Design ', bgColor: '#ffedd5', color: '#c2410c' },
 ];
+
+
+export const categoriesData = [
+  { id: 'cat-001', title: 'IT & Computer', iconName: 'FaLaptopCode', colorScheme: 'purple', slug: 'it-computer', enrollmentCount: 1250 },
+  { id: 'cat-002', title: 'UI/UX Design', iconName: 'FaPenNib', colorScheme: 'blue', slug: 'ui-ux-design', enrollmentCount: 980 },
+  { id: 'cat-003', title: 'Digital Marketing', iconName: 'FaBullhorn', colorScheme: 'orange', slug: 'digital-marketing', enrollmentCount: 860 },
+  { id: 'cat-004', title: 'Photography', iconName: 'FaCamera', colorScheme: 'cyan', slug: 'photography', enrollmentCount: 430 },
+  { id: 'cat-005', title: 'Graphic Design', iconName: 'FaPalette', colorScheme: 'pink', slug: 'graphic-design', enrollmentCount: 720 },
+  { id: 'cat-006', title: 'Finance & Banking', iconName: 'FaChartLine', colorScheme: 'green', slug: 'finance-banking', enrollmentCount: 540 },
+  { id: 'cat-007', title: 'Music', iconName: 'FaMusic', colorScheme: 'violet', slug: 'music', enrollmentCount: 310 },
+  { id: 'cat-008', title: 'Content Marketing', iconName: 'FaFeatherAlt', colorScheme: 'teal', slug: 'content-marketing', enrollmentCount: 670 },
+  { id: 'cat-009', title: '3D Visual Design', iconName: 'FaCube', colorScheme: 'red', slug: '3d-visual-design', enrollmentCount: 290 },
+  { id: 'cat-010', title: 'Interior Design', iconName: 'FaCouch', colorScheme: 'amber', slug: 'interior-design', enrollmentCount: 380 },
+  { id: 'cat-011', title: 'Photo Lifestyle', iconName: 'FaImages', colorScheme: 'indigo', slug: 'photo-lifestyle', enrollmentCount: 210 },
+  { id: 'cat-012', title: 'Art & Design', iconName: 'FaDraftingCompass', colorScheme: 'rose', slug: 'art-design', enrollmentCount: 590 },
+  { id: 'cat-013', title: 'Data Science', iconName: 'FaDatabase', colorScheme: 'purple', slug: 'data-science', enrollmentCount: 1100 },
+  { id: 'cat-014', title: 'Cybersecurity', iconName: 'FaShieldAlt', colorScheme: 'blue', slug: 'cybersecurity', enrollmentCount: 950 },
+  { id: 'cat-015', title: 'Cloud Computing', iconName: 'FaCloud', colorScheme: 'cyan', slug: 'cloud-computing', enrollmentCount: 880 },
+  { id: 'cat-016', title: 'Machine Learning', iconName: 'FaRobot', colorScheme: 'orange', slug: 'machine-learning', enrollmentCount: 750 },
+  { id: 'cat-017', title: 'Business Strategy', iconName: 'FaBriefcase', colorScheme: 'green', slug: 'business-strategy', enrollmentCount: 620 },
+  { id: 'cat-018', title: 'Personal Dev', iconName: 'FaUserGraduate', colorScheme: 'pink', slug: 'personal-dev', enrollmentCount: 500 },
+];
+
