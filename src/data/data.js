@@ -19,3 +19,18 @@ export const speakers = [
   { id: 3, name: 'Savannah Nguyen', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=33', bgColor: '#F5A9A9' },
   { id: 4, name: 'Kristin Watson', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=44', bgColor: '#E2E2E2' },
 ];
+
+export const categoriesData = [
+  { icon: 'fas fa-bullhorn', title: 'Digital Marketing', bgColor: '#e0f2fe', color: '#0369a1' },
+  { icon: 'fas fa-window-maximize', title: 'UI/UX Design', bgColor: '#ebebf9', color: '#312e81' },
+  { icon: 'fas fa-cube', title: '3D Visual Design', bgColor: '#fcefdc', color: '#9a3412' },
+  { icon: 'fas fa-pencil-alt', title: 'Content Marketing', bgColor: '#fbe9e9', color: '#9f1239' },
+  { icon: 'fas fa-camera', title: 'Photography', bgColor: '#f3e8ff', color: '#6b21a8' },
+  { icon: 'fas fa-camera-retro', title: 'Photo Lifestyle', bgColor: '#fff0f6', color: '#be185d' },
+  { icon: 'fas fa-palette', title: 'Art & Design', bgColor: '#ffedd5', color: '#c2410c' },
+  { icon: 'fas fa-chart-line', title: 'Finance & Banking', bgColor: '#dcfce7', color: '#166534' },
+  { icon: 'fas fa-pen-nib', title: 'Graphic Design', bgColor: '#e0e7ff', color: '#4338ca' },
+  { icon: 'fas fa-couch', title: 'Interior Design', bgColor: '#fef3c7', color: '#b45309' },
+  { icon: 'fas fa-cube', title: '3D Visual Design ', bgColor: '#fcefdc', color: '#9a3412' },
+  { icon: 'fas fa-palette', title: 'Art & Design ', bgColor: '#ffedd5', color: '#c2410c' },
+];
