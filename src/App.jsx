@@ -2,7 +2,7 @@ import React from 'react';
 import Categories from './components/Categories';
 import EventSpeakers from './components/EventSpeakers';
 import PopularCategories from './components/PopularCategories';
-
+import CategoriesSection from './components/categories/CategoriesSection';
 
 function App() {
   return (
@@ -11,6 +11,7 @@ function App() {
         <Categories />
         <EventSpeakers />
         <PopularCategories />
+        <CategoriesSection />
       </main>
     </div>
   );

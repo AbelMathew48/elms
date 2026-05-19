@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { categoriesData } from '../data/data.js';
+import { categorieData } from '../data/data.js';
 import './PopularCategories.css';
 
 // Highly reusable Category Card Component
@@ -35,7 +35,7 @@ const PopularCategories = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isPaused, setIsPaused] = useState(false);
 
-  const filteredCategories = categoriesData.filter(category => 
+  const filteredCategories = categorieData.filter(category => 
     category.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

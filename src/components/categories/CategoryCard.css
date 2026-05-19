@@ -1,0 +1,213 @@
+/**
+ * CategoryCard.css
+ * Compact card styles for carousel — fits within a constrained viewport height.
+ */
+
+/* ── Card Base ─────────────────────────────────────────── */
+.category-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  padding: 4% 5%;
+  width: 100%;
+  /*
+   * height: auto — card grows to fit content.
+   * max-height caps it so it doesn't exceed the tile size.
+   * min-height ensures it never collapses on sparse content.
+   */
+  height: auto;
+  min-height: 13rem;
+  max-height: 16rem;
+  background: var(--gradient-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: 1.5rem;
+  /* overflow: visible so hover box-shadow / scale isn't clipped */
+  overflow: visible;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: var(--transition-bounce);
+  box-shadow: var(--shadow-sm);
+}
+
+.category-card:hover,
+.category-card:focus-visible {
+  transform: translateY(-0.4rem) scale(1.02);
+  border-color: var(--card-color, var(--color-primary));
+  box-shadow: var(--shadow-hover);
+}
+
+.category-card:active {
+  transform: scale(0.98);
+  transition: all 0.1s ease;
+}
+
+/* ── Popular / Trending Badge ──────────────────────────── */
+.category-card__badge {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  display: flex;
+  align-items: center;
+  gap: 0.18rem;
+  padding: 0.18rem 0.5rem;
+  background: var(--gradient-badge);
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(108,61,232,0.3);
+}
+
+/* ── Enrolled Count (top-left) ─────────────────────────── */
+.category-card__enrolled {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.category-card__enrolled span:first-child {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--card-color, var(--color-primary));
+}
+
+.category-card__enrolled-label {
+  font-size: 0.5rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+/* ── Icon ──────────────────────────────────────────────── */
+.category-card__icon-wrap {
+  /* Reduced top margin so icon doesn't float too far from enrolled label */
+  margin-top: 5%;
+  margin-bottom: 3%;
+}
+
+.category-card__icon-bg {
+  /* Reduced from 3.8rem to 3rem for a tighter, more compact tile */
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--card-color-light, var(--color-surface-hover));
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  transition: var(--transition-bounce);
+  box-shadow: 0 3px 12px var(--card-color-glow, rgba(108,61,232,0.1));
+}
+
+.category-card:hover .category-card__icon-bg {
+  border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* ── Title ─────────────────────────────────────────────── */
+.category-card__title {
+  font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 4%;
+  line-height: 1.3;
+  transition: color var(--transition-base);
+}
+
+.category-card:hover .category-card__title {
+  color: var(--card-color, var(--color-primary));
+}
+
+/* ── Divider ───────────────────────────────────────────── */
+.category-card__divider {
+  width: 35%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--card-color, var(--color-primary)), transparent);
+  border-radius: var(--radius-full);
+  margin-bottom: 4%;
+  opacity: 0.4;
+  transition: opacity var(--transition-base), width var(--transition-base);
+}
+
+.category-card:hover .category-card__divider {
+  width: 65%;
+  opacity: 0.9;
+}
+
+/* ── Stats Row ─────────────────────────────────────────── */
+.category-card__stats {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  gap: 2%;
+}
+
+.category-card__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  flex: 1;
+}
+
+.category-card__stat-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.8;
+}
+
+.category-card__stat-count {
+  font-size: clamp(0.75rem, 1.3vw, 0.9rem);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.category-card__stat-label {
+  font-size: 0.55rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Stats Loading Skeleton ────────────────────────────── */
+.category-card__stat-skeleton {
+  display: inline-block;
+  width: 1.5rem;
+  height: 0.75rem;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 0.25rem;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Glow Overlay ──────────────────────────────────────── */
+.category-card__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 0%, var(--card-color-glow, rgba(108,61,232,0.08)) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.category-card:hover .category-card__glow {
+  opacity: 1;
+}
