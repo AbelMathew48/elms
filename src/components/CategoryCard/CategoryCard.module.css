@@ -1,0 +1,407 @@
+/* ═══ Card Wrapper (Keeps Grid Flow Stable) ══════════════ */
+.cardWrapper {
+  position: relative;
+  height: 5.875rem; /* Base relative height */
+  z-index: 1;
+  transition: z-index 0.3s ease;
+}
+
+.cardWrapper:hover,
+.cardWrapper:focus-within {
+  z-index: 10;
+}
+
+/* ═══ Card Container ═══════════════════════════════ */
+.card {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  right: 0%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, var(--bg-white) 40%, var(--bg-pastel));
+  border-radius: var(--radius-lg);
+  border: 0.1rem solid rgba(15, 23, 42, 0.06);
+  padding: 0.8rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  
+  /* Initial collapsed state: 100% of wrapper */
+  height: 100%;
+  
+  transition:
+    height 0.35s var(--ease-smooth),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.35s var(--ease-smooth),
+    filter 0.3s ease,
+    opacity 0.3s ease;
+  outline: none;
+}
+
+/* Hover Lift & Symmetrical Expand Length (Height) */
+.card[data-expanded="true"],
+.card:focus,
+.card:focus-within {
+  /* Dynamic expansion symmetrically */
+  height: 20rem; 
+  transform: translateY(-50%) scale(1.025);
+  box-shadow:
+    var(--shadow-hover),
+    0 0 0 0.1rem var(--border-glow),
+    0 0 2.2rem var(--glow);
+  border-color: transparent;
+}
+
+/* ── Glowing Border overlay (animated on hover) ── */
+.glowBorder {
+  position: absolute;
+  inset: -0.06rem;
+  border-radius: inherit;
+  border: 0.125rem solid transparent;
+  background: var(--gradient) border-box;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.card[data-expanded="true"] .glowBorder,
+.card:focus .glowBorder,
+.card:focus-within .glowBorder {
+  opacity: 1;
+}
+
+/* ── Mobile Close Button ── */
+.closeBtn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.05);
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, background 0.2s ease;
+  z-index: 20;
+}
+
+.closeBtn:hover {
+  background: rgba(15, 23, 42, 0.1);
+  color: var(--text-heading);
+}
+
+@media (max-width: 768px) {
+  .card[data-expanded="true"] .closeBtn,
+  .card:focus .closeBtn,
+  .card:focus-within .closeBtn {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* ── ALWAYS VISIBLE HEADER (Icon & Title) ── */
+.headerPart {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  height: 4.1rem;
+  flex-shrink: 0;
+}
+
+.iconBg {
+  position: relative;
+  width: 3rem;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s var(--ease-spring);
+  flex-shrink: 0;
+}
+
+.card[data-expanded="true"] .iconBg,
+.card:focus .iconBg,
+.card:focus-within .iconBg {
+  transform: scale(1.1) rotate(-4deg);
+  background: var(--gradient) !important;
+}
+
+.categorySvg {
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke: var(--accent);
+  transition: stroke 0.3s ease;
+}
+
+.card[data-expanded="true"] .categorySvg,
+.card:focus .categorySvg,
+.card:focus-within .categorySvg {
+  stroke: #ffffff;
+}
+
+.emojiIcon {
+  font-size: 1.6rem;
+  line-height: 1;
+  z-index: 1;
+  display: inline-block;
+}
+
+.iconGlow {
+  position: absolute;
+  inset: -20%;
+  background: var(--gradient);
+  border-radius: 50%;
+  filter: blur(0.75rem);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card[data-expanded="true"] .iconGlow,
+.card:focus .iconGlow,
+.card:focus-within .iconGlow {
+  opacity: 0.2;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  line-height: 1.25;
+  margin: 0;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  padding-right: 1.5rem; /* Space for close btn */
+}
+
+.card[data-expanded="true"] .title,
+.card:focus .title,
+.card:focus-within .title {
+  color: var(--accent);
+}
+
+/* ── EXPANDABLE DETAIL PART ── */
+.expandablePart {
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 0.8rem;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
+}
+
+.card[data-expanded="true"] .expandablePart,
+.card:focus .expandablePart,
+.card:focus-within .expandablePart {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.1s;
+}
+
+/* Badges Row */
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.badgeTrending, .badgeNew, .diffBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.22rem 0.6rem;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.badgeTrending {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 0.06rem solid #ffedd5;
+}
+
+.badgeNew {
+  background: var(--pastel-purple);
+  color: #6d28d9;
+  border: 0.06rem solid #ddd6fe;
+}
+
+.diffBadge {
+  letter-spacing: 0.02em;
+}
+
+/* Description */
+.description {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Tags */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: var(--bg-pastel);
+  color: var(--accent);
+  padding: 0.18rem 0.5rem;
+  border-radius: var(--radius-full);
+  border: 0.06rem solid var(--glow);
+  transition: background 0.25s ease;
+}
+
+.card[data-expanded="true"] .tag,
+.card:focus .tag,
+.card:focus-within .tag {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Stats Row */
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.6rem;
+  border-top: 0.06rem solid rgba(15, 23, 42, 0.05);
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.statItem strong {
+  color: var(--text-heading);
+}
+
+.metaIcon {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--accent);
+}
+
+.starIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: #f59e0b;
+}
+
+/* Explore Button */
+.exploreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  justify-content: center;
+  padding: 0.75rem;
+  border: 0.1rem solid var(--border-glow);
+  border-radius: var(--radius-md);
+  background: var(--bg-pastel);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.4s var(--ease-spring),
+    box-shadow 0.25s ease;
+}
+
+.card[data-expanded="true"] .exploreBtn,
+.card:focus .exploreBtn,
+.card:focus-within .exploreBtn {
+  background: var(--gradient);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-0.06rem);
+  box-shadow: 0 0.25rem 0.95rem var(--glow);
+}
+
+.arrowIcon {
+  width: 0.9rem;
+  height: 0.9rem;
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.card[data-expanded="true"] .arrowIcon,
+.card:focus .arrowIcon,
+.card:focus-within .arrowIcon {
+  transform: translateX(0.18rem);
+}
+
+/* Bottom accent line */
+.accentLine {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.18rem;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card[data-expanded="true"] .accentLine,
+.card:focus .accentLine,
+.card:focus-within .accentLine {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .card[data-expanded="true"],
+  .card:focus,
+  .card:focus-within {
+    height: 21rem;
+  }
+}
+
+/* ── Sibling Card Blur Focus Effect (Depth of Field) ── */
+:global(#categories):has(.card[data-expanded="true"]) .card:not([data-expanded="true"]),
+:global(#categories):has(.card:focus-within) .card:not(:focus-within) {
+  filter: blur(0.18rem);
+  opacity: 0.5;
+  transform: translateY(-50%) scale(0.96);
+  box-shadow: none;
+}
