@@ -4,6 +4,8 @@ import EventSpeakers from './components/EventSpeakers';
 import PopularCategories from './components/PopularCategories';
 import CategoriesSection from './components/categories/CategoriesSection';
 import CategoriesPage from './components/pages/CategoriesPage';
+import CategoryStrip from './components/CategoryStrip';
+import { CATEGORIES } from './data/data';
 
 function App() {
   return (
@@ -14,6 +16,7 @@ function App() {
         <PopularCategories />
         <CategoriesSection />
         <CategoriesPage />
+        <CategoryStrip categories={CATEGORIES} />
       </main>
     </div>
   );
