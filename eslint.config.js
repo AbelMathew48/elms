@@ -1,3 +1,7 @@
+/**
+ * @file eslint.config.js
+ * @description ESLint configuration and plugin setup for linting this project.
+ */
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

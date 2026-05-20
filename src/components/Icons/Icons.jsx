@@ -1,3 +1,7 @@
+/**
+ * @file Icons.jsx
+ * @description Stateless SVG icon components used throughout the app.
+ */
 import React from 'react';
 
 export const WebDevIcon = ({ className }) => (

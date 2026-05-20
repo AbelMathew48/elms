@@ -1,3 +1,9 @@
+/**
+ * @file data.js
+ * @description Shared mock data for course categories, speaker profiles, and category metadata.
+ */
+
+// Author: Delvin 
 export const categories = [
   { id: 1, name: 'Digital Marketing', icon: '💻', bgColor: '#FFEBEB', courses: 24, description: 'Learn SEO, SEM, social media marketing, and analytics to grow your online presence.' },
   { id: 2, name: 'UI/UX Design', icon: '💡', bgColor: '#EBF4FF', courses: 45, description: 'Master user interface and user experience design principles to create intuitive digital products.' },
@@ -13,6 +19,7 @@ export const categories = [
   { id: 12, name: 'Mobile Apps', icon: '📱', bgColor: '#FCE8FF', courses: 29, description: 'Develop native and cross-platform mobile applications for iOS and Android devices.' },
 ];
 
+// Author: Delvin
 export const speakers = [
   { id: 1, name: 'Theresa Webb', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=1', bgColor: '#F2DFCD' },
   { id: 2, name: 'Ronald Richards', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=12', bgColor: '#CBB2E2' },
@@ -20,6 +27,7 @@ export const speakers = [
   { id: 4, name: 'Kristin Watson', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=44', bgColor: '#E2E2E2' },
 ];
 
+// Author: Albin
 export const categorieData = [
   { icon: 'fas fa-bullhorn', title: 'Digital Marketing', bgColor: '#e0f2fe', color: '#0369a1' },
   { icon: 'fas fa-window-maximize', title: 'UI/UX Design', bgColor: '#ebebf9', color: '#312e81' },
@@ -35,7 +43,7 @@ export const categorieData = [
   { icon: 'fas fa-palette', title: 'Art & Design ', bgColor: '#ffedd5', color: '#c2410c' },
 ];
 
-
+// Author: Abel
 export const categoriesData = [
   { id: 'cat-001', title: 'IT & Computer', iconName: 'FaLaptopCode', colorScheme: 'purple', slug: 'it-computer', enrollmentCount: 1250 },
   { id: 'cat-002', title: 'UI/UX Design', iconName: 'FaPenNib', colorScheme: 'blue', slug: 'ui-ux-design', enrollmentCount: 980 },
@@ -57,6 +65,7 @@ export const categoriesData = [
   { id: 'cat-018', title: 'Personal Dev', iconName: 'FaUserGraduate', colorScheme: 'pink', slug: 'personal-dev', enrollmentCount: 500 },
 ];
 
+// Author: Don
 export const catData = [
   {
     id: 1, title: 'Web Development',
