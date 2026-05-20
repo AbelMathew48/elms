@@ -1,3 +1,7 @@
+/**
+ * @file PopularCategories.jsx
+ * @description Displays the popular category carousel on the homepage.
+ */
 import React, { useRef, useState, useEffect } from 'react';
 import { categorieData } from '../data/data.js';
 import './PopularCategories.css';

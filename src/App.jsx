@@ -1,3 +1,7 @@
+/**
+ * @file App.jsx
+ * @description Root React component that composes the main homepage sections.
+ */
 import React from 'react';
 import Categories from './components/Categories';
 import EventSpeakers from './components/EventSpeakers';

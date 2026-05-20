@@ -1,3 +1,7 @@
+/*
+ * FloatingDoodles.module.css
+ * Styles for the animated floating background doodles.
+ */
 .doodleContainer {
   position: absolute;
   inset: 0;

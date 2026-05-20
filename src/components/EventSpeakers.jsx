@@ -1,3 +1,7 @@
+/**
+ * @file EventSpeakers.jsx
+ * @description Renders the featured event speaker cards section.
+ */
 import React from 'react';
 import styles from './EventSpeakers.module.css';
 import { speakers } from '../data/data';

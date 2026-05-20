@@ -1,3 +1,7 @@
+/*
+ * CategoryCard.module.css
+ * Card-specific styling for the CategoryCard component.
+ */
 /* ═══ Card Wrapper (Keeps Grid Flow Stable) ══════════════ */
 .cardWrapper {
   position: relative;

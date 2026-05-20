@@ -1,3 +1,7 @@
+/**
+ * @file main.jsx
+ * @description Application entry point that mounts the React root component.
+ */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
