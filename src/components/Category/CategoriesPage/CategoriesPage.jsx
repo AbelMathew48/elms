@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import styles from './CategoriesPage.module.css';
-import FloatingDoodles from '../FloatingDoodles/FloatingDoodles';
+import FloatingDoodles from '../../FloatingDoodles/FloatingDoodles';
 import CategoryGrid from '../CategoryGrid/CategoryGrid';
 
 const CategoriesPage = () => {

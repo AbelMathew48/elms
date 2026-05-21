@@ -5,7 +5,7 @@
 import React from 'react';
 import styles from './CategoryGrid.module.css';
 import CategoryCard from '../CategoryCard/CategoryCard';
-import { catData } from '../../data/data';
+import { catData } from '../../../data/data';
 
 const CategoryGrid = () => {
   return (

@@ -1,71 +1,87 @@
 /**
  * @file data.js
  * @description Shared mock data for course categories, speaker profiles, and category metadata.
+ *              Also exports design-system tokens that mirror src/styles/colour.module.css.
  */
 
-// Author: Delvin 
+// ─────────────────────────────────────────────────────────────
+// Author: Delvin
+// Used by: Categories.jsx  →  carousel of top-level categories
+// ─────────────────────────────────────────────────────────────
 export const categories = [
-  { id: 1, name: 'Digital Marketing', icon: '💻', bgColor: '#FFEBEB', courses: 24, description: 'Learn SEO, SEM, social media marketing, and analytics to grow your online presence.' },
-  { id: 2, name: 'UI/UX Design', icon: '💡', bgColor: '#EBF4FF', courses: 45, description: 'Master user interface and user experience design principles to create intuitive digital products.' },
-  { id: 3, name: '3D Visual Design', icon: '🧊', bgColor: '#F4EBFF', courses: 18, description: 'Create stunning 3D graphics, animations, and visual effects for various industries.' },
-  { id: 4, name: 'Content Marketing', icon: '📚', bgColor: '#FFF2EB', courses: 32, description: 'Develop strategies to create and distribute valuable, relevant content to attract audiences.' },
-  { id: 5, name: 'Photography', icon: '📷', bgColor: '#EFFFF4', courses: 28, description: 'Master the art of photography, from basic camera settings to advanced lighting and composition.' },
-  { id: 6, name: 'Photo Lifestyle', icon: '📸', bgColor: '#EBFBFF', courses: 15, description: 'Capture authentic lifestyle moments and build a compelling visual narrative.' },
-  { id: 7, name: 'Art & Design', icon: '🎨', bgColor: '#FFF4EB', courses: 56, description: 'Explore fundamental art concepts and graphic design techniques to unleash your creativity.' },
-  { id: 8, name: 'Finance & Banking', icon: '🏦', bgColor: '#EBEBFF', courses: 22, description: 'Understand financial markets, personal finance, investment strategies, and banking operations.' },
-  { id: 9, name: 'Graphic Design', icon: '📐', bgColor: '#FFEBF4', courses: 37, description: 'Learn typography, color theory, and layout to create visually appealing designs.' },
-  { id: 10, name: 'Interior Design', icon: '🛋️', bgColor: '#F4FFE8', courses: 19, description: 'Design functional and aesthetically pleasing indoor spaces for residential and commercial clients.' },
-  { id: 11, name: 'Web Development', icon: '🌐', bgColor: '#E8F8FF', courses: 41, description: 'Build responsive, dynamic websites and web applications using modern programming languages.' },
-  { id: 12, name: 'Mobile Apps', icon: '📱', bgColor: '#FCE8FF', courses: 29, description: 'Develop native and cross-platform mobile applications for iOS and Android devices.' },
+  { id: 1,  name: 'Digital Marketing', icon: '📣', bgColor: '#FFEBEB', courses: 24, description: 'Learn SEO, SEM, social media marketing, and analytics to grow your online presence.' },
+  { id: 2,  name: 'UI/UX Design',      icon: '🎨', bgColor: '#EBF4FF', courses: 45, description: 'Master user interface and user experience design principles to create intuitive digital products.' },
+  { id: 3,  name: '3D Visual Design',  icon: '🎮', bgColor: '#F4EBFF', courses: 18, description: 'Create stunning 3D graphics, animations, and visual effects for various industries.' },
+  { id: 4,  name: 'Content Marketing', icon: '📝', bgColor: '#FFF2EB', courses: 32, description: 'Develop strategies to create and distribute valuable, relevant content to attract audiences.' },
+  { id: 5,  name: 'Photography',       icon: '📷', bgColor: '#EFFFF4', courses: 28, description: 'Master the art of photography, from basic camera settings to advanced lighting and composition.' },
+  { id: 6,  name: 'Photo Lifestyle',   icon: '📸', bgColor: '#EBFBFF', courses: 15, description: 'Capture authentic lifestyle moments and build a compelling visual narrative.' },
+  { id: 7,  name: 'Art & Design',      icon: '🖌️', bgColor: '#FFF4EB', courses: 56, description: 'Explore fundamental art concepts and graphic design techniques to unleash your creativity.' },
+  { id: 8,  name: 'Finance & Banking', icon: '💰', bgColor: '#EBEBFF', courses: 22, description: 'Understand financial markets, personal finance, investment strategies, and banking operations.' },
+  { id: 9,  name: 'Graphic Design',    icon: '📐', bgColor: '#FFEBF4', courses: 37, description: 'Learn typography, color theory, and layout to create visually appealing designs.' },
+  { id: 10, name: 'Interior Design',   icon: '🛋️', bgColor: '#F4FFE8', courses: 19, description: 'Design functional and aesthetically pleasing indoor spaces for residential and commercial clients.' },
+  { id: 11, name: 'Web Development',   icon: '💻', bgColor: '#E8F8FF', courses: 41, description: 'Build responsive, dynamic websites and web applications using modern programming languages.' },
+  { id: 12, name: 'Mobile Apps',       icon: '📱', bgColor: '#FCE8FF', courses: 29, description: 'Develop native and cross-platform mobile applications for iOS and Android devices.' },
 ];
 
+// ─────────────────────────────────────────────────────────────
 // Author: Delvin
+// Used by: EventSpeakers.jsx  →  speaker profile cards
+// ─────────────────────────────────────────────────────────────
 export const speakers = [
-  { id: 1, name: 'Theresa Webb', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=1', bgColor: '#F2DFCD' },
+  { id: 1, name: 'Theresa Webb',    role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=1',  bgColor: '#F2DFCD' },
   { id: 2, name: 'Ronald Richards', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=12', bgColor: '#CBB2E2' },
   { id: 3, name: 'Savannah Nguyen', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=33', bgColor: '#F5A9A9' },
-  { id: 4, name: 'Kristin Watson', role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=44', bgColor: '#E2E2E2' },
+  { id: 4, name: 'Kristin Watson',  role: 'Professional Web Developer', image: 'https://i.pravatar.cc/300?img=44', bgColor: '#E2E2E2' },
 ];
 
+// ─────────────────────────────────────────────────────────────
 // Author: Albin
+// Used by: PopularCategories.jsx  →  auto-sliding carousel cards
+// ─────────────────────────────────────────────────────────────
 export const categorieData = [
-  { icon: 'fas fa-bullhorn', title: 'Digital Marketing', bgColor: '#e0f2fe', color: '#0369a1' },
-  { icon: 'fas fa-window-maximize', title: 'UI/UX Design', bgColor: '#ebebf9', color: '#312e81' },
-  { icon: 'fas fa-cube', title: '3D Visual Design', bgColor: '#fcefdc', color: '#9a3412' },
-  { icon: 'fas fa-pencil-alt', title: 'Content Marketing', bgColor: '#fbe9e9', color: '#9f1239' },
-  { icon: 'fas fa-camera', title: 'Photography', bgColor: '#f3e8ff', color: '#6b21a8' },
-  { icon: 'fas fa-camera-retro', title: 'Photo Lifestyle', bgColor: '#fff0f6', color: '#be185d' },
-  { icon: 'fas fa-palette', title: 'Art & Design', bgColor: '#ffedd5', color: '#c2410c' },
-  { icon: 'fas fa-chart-line', title: 'Finance & Banking', bgColor: '#dcfce7', color: '#166534' },
-  { icon: 'fas fa-pen-nib', title: 'Graphic Design', bgColor: '#e0e7ff', color: '#4338ca' },
-  { icon: 'fas fa-couch', title: 'Interior Design', bgColor: '#fef3c7', color: '#b45309' },
-  { icon: 'fas fa-cube', title: '3D Visual Design ', bgColor: '#fcefdc', color: '#9a3412' },
-  { icon: 'fas fa-palette', title: 'Art & Design ', bgColor: '#ffedd5', color: '#c2410c' },
+  { icon: 'fas fa-bullhorn',       title: 'Digital Marketing', bgColor: '#e0f2fe', color: '#0369a1' },
+  { icon: 'fas fa-window-maximize',title: 'UI/UX Design',      bgColor: '#ebebf9', color: '#312e81' },
+  { icon: 'fas fa-cube',           title: '3D Visual Design',  bgColor: '#fcefdc', color: '#9a3412' },
+  { icon: 'fas fa-pencil-alt',     title: 'Content Marketing', bgColor: '#fbe9e9', color: '#9f1239' },
+  { icon: 'fas fa-camera',         title: 'Photography',       bgColor: '#f3e8ff', color: '#6b21a8' },
+  { icon: 'fas fa-camera-retro',   title: 'Photo Lifestyle',   bgColor: '#fff0f6', color: '#be185d' },
+  { icon: 'fas fa-palette',        title: 'Art & Design',      bgColor: '#ffedd5', color: '#c2410c' },
+  { icon: 'fas fa-chart-line',     title: 'Finance & Banking', bgColor: '#dcfce7', color: '#166534' },
+  { icon: 'fas fa-pen-nib',        title: 'Graphic Design',    bgColor: '#e0e7ff', color: '#4338ca' },
+  { icon: 'fas fa-couch',          title: 'Interior Design',   bgColor: '#fef3c7', color: '#b45309' },
+  { icon: 'fas fa-cube',           title: '3D Visual Design ', bgColor: '#fcefdc', color: '#9a3412' },
+  { icon: 'fas fa-palette',        title: 'Art & Design ',     bgColor: '#ffedd5', color: '#c2410c' },
 ];
 
+// ─────────────────────────────────────────────────────────────
 // Author: Abel
+// Used by: CategoriesSection  →  full category list with metadata
+// ─────────────────────────────────────────────────────────────
 export const categoriesData = [
-  { id: 'cat-001', title: 'IT & Computer', iconName: 'FaLaptopCode', colorScheme: 'purple', slug: 'it-computer', enrollmentCount: 1250 },
-  { id: 'cat-002', title: 'UI/UX Design', iconName: 'FaPenNib', colorScheme: 'blue', slug: 'ui-ux-design', enrollmentCount: 980 },
-  { id: 'cat-003', title: 'Digital Marketing', iconName: 'FaBullhorn', colorScheme: 'orange', slug: 'digital-marketing', enrollmentCount: 860 },
-  { id: 'cat-004', title: 'Photography', iconName: 'FaCamera', colorScheme: 'cyan', slug: 'photography', enrollmentCount: 430 },
-  { id: 'cat-005', title: 'Graphic Design', iconName: 'FaPalette', colorScheme: 'pink', slug: 'graphic-design', enrollmentCount: 720 },
-  { id: 'cat-006', title: 'Finance & Banking', iconName: 'FaChartLine', colorScheme: 'green', slug: 'finance-banking', enrollmentCount: 540 },
-  { id: 'cat-007', title: 'Music', iconName: 'FaMusic', colorScheme: 'violet', slug: 'music', enrollmentCount: 310 },
-  { id: 'cat-008', title: 'Content Marketing', iconName: 'FaFeatherAlt', colorScheme: 'teal', slug: 'content-marketing', enrollmentCount: 670 },
-  { id: 'cat-009', title: '3D Visual Design', iconName: 'FaCube', colorScheme: 'red', slug: '3d-visual-design', enrollmentCount: 290 },
-  { id: 'cat-010', title: 'Interior Design', iconName: 'FaCouch', colorScheme: 'amber', slug: 'interior-design', enrollmentCount: 380 },
-  { id: 'cat-011', title: 'Photo Lifestyle', iconName: 'FaImages', colorScheme: 'indigo', slug: 'photo-lifestyle', enrollmentCount: 210 },
-  { id: 'cat-012', title: 'Art & Design', iconName: 'FaDraftingCompass', colorScheme: 'rose', slug: 'art-design', enrollmentCount: 590 },
-  { id: 'cat-013', title: 'Data Science', iconName: 'FaDatabase', colorScheme: 'purple', slug: 'data-science', enrollmentCount: 1100 },
-  { id: 'cat-014', title: 'Cybersecurity', iconName: 'FaShieldAlt', colorScheme: 'blue', slug: 'cybersecurity', enrollmentCount: 950 },
-  { id: 'cat-015', title: 'Cloud Computing', iconName: 'FaCloud', colorScheme: 'cyan', slug: 'cloud-computing', enrollmentCount: 880 },
-  { id: 'cat-016', title: 'Machine Learning', iconName: 'FaRobot', colorScheme: 'orange', slug: 'machine-learning', enrollmentCount: 750 },
-  { id: 'cat-017', title: 'Business Strategy', iconName: 'FaBriefcase', colorScheme: 'green', slug: 'business-strategy', enrollmentCount: 620 },
-  { id: 'cat-018', title: 'Personal Dev', iconName: 'FaUserGraduate', colorScheme: 'pink', slug: 'personal-dev', enrollmentCount: 500 },
+  { id: 'cat-001', title: 'IT & Computer',      iconName: 'FaLaptopCode',      colorScheme: 'purple', slug: 'it-computer',       enrollmentCount: 1250 },
+  { id: 'cat-002', title: 'UI/UX Design',        iconName: 'FaPenNib',          colorScheme: 'blue',   slug: 'ui-ux-design',      enrollmentCount: 980  },
+  { id: 'cat-003', title: 'Digital Marketing',   iconName: 'FaBullhorn',        colorScheme: 'orange', slug: 'digital-marketing', enrollmentCount: 860  },
+  { id: 'cat-004', title: 'Photography',         iconName: 'FaCamera',          colorScheme: 'cyan',   slug: 'photography',       enrollmentCount: 430  },
+  { id: 'cat-005', title: 'Graphic Design',      iconName: 'FaPalette',         colorScheme: 'pink',   slug: 'graphic-design',    enrollmentCount: 720  },
+  { id: 'cat-006', title: 'Finance & Banking',   iconName: 'FaChartLine',       colorScheme: 'green',  slug: 'finance-banking',   enrollmentCount: 540  },
+  { id: 'cat-007', title: 'Music',               iconName: 'FaMusic',           colorScheme: 'violet', slug: 'music',             enrollmentCount: 310  },
+  { id: 'cat-008', title: 'Content Marketing',   iconName: 'FaFeatherAlt',      colorScheme: 'teal',   slug: 'content-marketing', enrollmentCount: 670  },
+  { id: 'cat-009', title: '3D Visual Design',    iconName: 'FaCube',            colorScheme: 'red',    slug: '3d-visual-design',  enrollmentCount: 290  },
+  { id: 'cat-010', title: 'Interior Design',     iconName: 'FaCouch',           colorScheme: 'amber',  slug: 'interior-design',   enrollmentCount: 380  },
+  { id: 'cat-011', title: 'Photo Lifestyle',     iconName: 'FaImages',          colorScheme: 'indigo', slug: 'photo-lifestyle',   enrollmentCount: 210  },
+  { id: 'cat-012', title: 'Art & Design',        iconName: 'FaDraftingCompass', colorScheme: 'rose',   slug: 'art-design',        enrollmentCount: 590  },
+  { id: 'cat-013', title: 'Data Science',        iconName: 'FaDatabase',        colorScheme: 'purple', slug: 'data-science',      enrollmentCount: 1100 },
+  { id: 'cat-014', title: 'Cybersecurity',       iconName: 'FaShieldAlt',       colorScheme: 'blue',   slug: 'cybersecurity',     enrollmentCount: 950  },
+  { id: 'cat-015', title: 'Cloud Computing',     iconName: 'FaCloud',           colorScheme: 'cyan',   slug: 'cloud-computing',   enrollmentCount: 880  },
+  { id: 'cat-016', title: 'Machine Learning',    iconName: 'FaRobot',           colorScheme: 'orange', slug: 'machine-learning',  enrollmentCount: 750  },
+  { id: 'cat-017', title: 'Business Strategy',   iconName: 'FaBriefcase',       colorScheme: 'green',  slug: 'business-strategy', enrollmentCount: 620  },
+  { id: 'cat-018', title: 'Personal Dev',        iconName: 'FaUserGraduate',    colorScheme: 'pink',   slug: 'personal-dev',      enrollmentCount: 500  },
 ];
 
+// ─────────────────────────────────────────────────────────────
 // Author: Don
+// Used by: CategoryGrid.jsx  →  premium card grid with gradients
+// ─────────────────────────────────────────────────────────────
 export const catData = [
   {
     id: 1, title: 'Web Development',
@@ -211,22 +227,81 @@ export const catData = [
     description: 'Master composition, lighting, DSLR settings and post-processing with Lightroom.',
     tags: ['Lightroom', 'DSLR', 'Composition'],
   },
-
 ];
 
+// ─────────────────────────────────────────────────────────────
+// Used by: App.jsx  →  CategoryStrip bottom navigation bar
+// ─────────────────────────────────────────────────────────────
 export const CATEGORIES = [
-  { icon: 'fa-pencil-ruler',  label: 'Web Design',    courses: 120, color: '#2878EB' },
-  { icon: 'fa-code',          label: 'Development',   courses: 95,  color: '#F14D5D' },
-  { icon: 'fa-chart-line',    label: 'Marketing',     courses: 78,  color: '#28a745' },
-  { icon: 'fa-camera-retro',  label: 'Photography',   courses: 54,  color: '#ffc107' },
-  { icon: 'fa-briefcase',     label: 'Business',      courses: 67,  color: '#6f42c1' },
-  { icon: 'fa-music',         label: 'Music',         courses: 41,  color: '#e83e8c' },
-  { icon: 'fa-chart-bar',     label: 'Finance',       courses: 88,  color: '#17a2b8' },
-  { icon: 'fa-layer-group',   label: 'UI/UX Design',  courses: 63,  color: '#fd7e14' },
-  { icon: 'fa-database',      label: 'Data Science',  courses: 52,  color: '#20c997' },
-  { icon: 'fa-mobile-alt',    label: 'Mobile Apps',   courses: 47,  color: '#dc3545' },
-  { icon: 'fa-film',          label: 'Video Editing', courses: 35,  color: '#6610f2' },
-  { icon: 'fa-globe',         label: 'Languages',     courses: 29,  color: '#fd7e14' },
-  { icon: 'fa-robot',         label: 'AI & ML',       courses: 22,  color: '#0dcaf0' },
-  
+  { icon: 'fa-pencil-ruler', label: 'Web Design',   courses: 120, color: '#2878EB' },
+  { icon: 'fa-code',         label: 'Development',  courses: 95,  color: '#F14D5D' },
+  { icon: 'fa-chart-line',   label: 'Marketing',    courses: 78,  color: '#28a745' },
+  { icon: 'fa-camera-retro', label: 'Photography',  courses: 54,  color: '#ffc107' },
+  { icon: 'fa-briefcase',    label: 'Business',     courses: 67,  color: '#6f42c1' },
+  { icon: 'fa-music',        label: 'Music',        courses: 41,  color: '#e83e8c' },
+  { icon: 'fa-chart-bar',    label: 'Finance',      courses: 88,  color: '#17a2b8' },
+  { icon: 'fa-layer-group',  label: 'UI/UX Design', courses: 63,  color: '#fd7e14' },
+  { icon: 'fa-database',     label: 'Data Science', courses: 52,  color: '#20c997' },
+  { icon: 'fa-mobile-alt',   label: 'Mobile Apps',  courses: 47,  color: '#dc3545' },
+  { icon: 'fa-film',         label: 'Video Editing',courses: 35,  color: '#6610f2' },
+  { icon: 'fa-globe',        label: 'Languages',    courses: 29,  color: '#fd7e14' },
+  { icon: 'fa-robot',        label: 'AI & ML',      courses: 22,  color: '#0dcaf0' },
 ];
+
+// ─────────────────────────────────────────────────────────────
+// Design-system tokens  (mirror of src/styles/colour.module.css)
+// Use these in JS logic; use var(--token) in CSS.
+// ─────────────────────────────────────────────────────────────
+
+// Backgrounds
+export const BG_PAGE  = '#f8f9ff';                   // Overall page background
+export const BG_WHITE = '#ffffff';                   // Card backgrounds
+export const BG_GLASS = 'rgba(255,255,255,0.72)';    // Glassmorphism overlay
+
+// Pastels
+export const PASTEL_PURPLE = '#f0ebff';
+export const PASTEL_PINK   = '#fff0f9';
+export const PASTEL_BLUE   = '#eff6ff';
+export const PASTEL_SKY    = '#e0f2fe';
+export const PASTEL_MINT   = '#ecfdf5';
+export const PASTEL_YELLOW = '#fffbeb';
+export const PASTEL_PEACH  = '#fff7ed';
+export const PASTEL_ROSE   = '#fff1f2';
+
+// Accents
+export const ACCENT_PURPLE = '#7c3aed';
+export const ACCENT_PINK   = '#db2777';
+export const ACCENT_BLUE   = '#2563eb';
+export const ACCENT_CYAN   = '#0891b2';
+export const ACCENT_GREEN  = '#059669';
+export const ACCENT_AMBER  = '#d97706';
+export const ACCENT_ORANGE = '#ea580c';
+export const ACCENT_RED    = '#dc2626';
+
+// Text
+export const TEXT_HEADING = '#0f172a';   // Dark headings
+export const TEXT_BODY    = '#334155';   // Primary body text
+export const TEXT_MUTED   = '#64748b';   // Secondary / muted
+export const TEXT_LIGHT   = '#94a3b8';   // Disabled / placeholder
+
+// Shadows
+export const SHADOW_CARD  = '0 0.25rem 1.5rem rgba(15,23,42,0.07)';
+export const SHADOW_HOVER = '0 1rem 3rem rgba(15,23,42,0.13)';
+export const SHADOW_NAV   = '0 0.125rem 1.25rem rgba(15,23,42,0.06)';
+
+// Radius
+export const RADIUS_SM   = '0.5rem';
+export const RADIUS_MD   = '1rem';
+export const RADIUS_LG   = '1.5rem';
+export const RADIUS_XL   = '2rem';
+export const RADIUS_FULL = '99rem';
+
+// Transitions
+export const EASE_SPRING     = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+export const EASE_SMOOTH     = 'cubic-bezier(0.16, 1, 0.3, 1)';
+export const TRANSITION_BASE = '0.35s';
+export const TRANSITION_FAST = '0.2s';
+
+// Fonts
+export const FONT_BODY    = "'Plus Jakarta Sans', sans-serif";
+export const FONT_DISPLAY = "'Outfit', sans-serif";

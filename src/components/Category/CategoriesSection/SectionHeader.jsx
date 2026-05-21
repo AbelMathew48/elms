@@ -25,7 +25,7 @@
  */
 
 import React from 'react';
-import './SectionHeader.css';
+import styles from './SectionHeader.module.css';
 
 /* ── Component ───────────────────────────────────────────── */
 const SectionHeader = ({
@@ -35,36 +35,36 @@ const SectionHeader = ({
   align = 'center',
 }) => (
   <header
-    className={`section-header section-header--${align}`}
+    className={`${styles['section-header']} ${styles[`section-header--${align}`]}`}
     aria-labelledby="section-header-headline"
   >
     {/* ── Eyebrow Label (e.g. "CATEGORIES") ─────────────── */}
     {eyebrow && (
-      <div className="section-header__eyebrow" aria-label={eyebrow}>
-        <span className="section-header__eyebrow-dot" aria-hidden="true" />
-        <span className="section-header__eyebrow-text">{eyebrow}</span>
-        <span className="section-header__eyebrow-dot" aria-hidden="true" />
+      <div className={styles['section-header__eyebrow']} aria-label={eyebrow}>
+        <span className={styles['section-header__eyebrow-dot']} aria-hidden="true" />
+        <span className={styles['section-header__eyebrow-text']}>{eyebrow}</span>
+        <span className={styles['section-header__eyebrow-dot']} aria-hidden="true" />
       </div>
     )}
 
     {/* ── Main Headline ─────────────────────────────────── */}
     <h2
       id="section-header-headline"
-      className="section-header__headline"
+      className={styles['section-header__headline']}
     >
       {headline}
     </h2>
 
     {/* ── Supporting Sub-text ───────────────────────────── */}
     {subText && (
-      <p className="section-header__subtext">{subText}</p>
+      <p className={styles['section-header__subtext']}>{subText}</p>
     )}
 
     {/* ── Decorative Underline Accent ───────────────────── */}
-    <div className="section-header__accent" aria-hidden="true">
-      <div className="section-header__accent-line" />
-      <div className="section-header__accent-dot" />
-      <div className="section-header__accent-line" />
+    <div className={styles['section-header__accent']} aria-hidden="true">
+      <div className={styles['section-header__accent-line']} />
+      <div className={styles['section-header__accent-dot']} />
+      <div className={styles['section-header__accent-line']} />
     </div>
   </header>
 );

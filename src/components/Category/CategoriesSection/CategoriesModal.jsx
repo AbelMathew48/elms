@@ -24,7 +24,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { FaTimes, FaLayerGroup } from 'react-icons/fa';
 import CategoryCard from './CategoryCard';
-import './CategoriesModal.css';
+import styles from './CategoriesModal.module.css';
 
 /* ── Component ──────────────────────────────────────────── */
 const CategoriesModal = ({
@@ -73,26 +73,26 @@ const CategoriesModal = ({
   return createPortal(
     /* ── Backdrop ───────────────────────────────────────── */
     <div
-      className="cat-modal__backdrop"
+      className={styles['cat-modal__backdrop']}
       role="dialog"
       aria-modal="true"
       aria-label="All Categories"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       {/* ── Modal Panel ──────────────────────────────────── */}
-      <div className="cat-modal__panel">
+      <div className={styles['cat-modal__panel']}>
 
         {/* ── Header ─────────────────────────────────────── */}
-        <div className="cat-modal__header">
-          <div className="cat-modal__header-left">
-            <span className="cat-modal__header-icon" aria-hidden="true">
+        <div className={styles['cat-modal__header']}>
+          <div className={styles['cat-modal__header-left']}>
+            <span className={styles['cat-modal__header-icon']} aria-hidden="true">
               <FaLayerGroup size="1.1rem" />
             </span>
             <div>
-              <h2 id="cat-modal-title" className="cat-modal__title">
+              <h2 id="cat-modal-title" className={styles['cat-modal__title']}>
                 All Categories
               </h2>
-              <p className="cat-modal__subtitle">
+              <p className={styles['cat-modal__subtitle']}>
                 {categories.length} categories available
               </p>
             </div>
@@ -103,7 +103,7 @@ const CategoriesModal = ({
             id="cat-modal-close-btn"
             ref={closeBtnRef}
             type="button"
-            className="cat-modal__close-btn"
+            className={styles['cat-modal__close-btn']}
             onClick={onClose}
             aria-label="Close categories panel"
           >
@@ -112,18 +112,18 @@ const CategoriesModal = ({
         </div>
 
         {/* ── Divider ────────────────────────────────────── */}
-        <div className="cat-modal__divider" aria-hidden="true" />
+        <div className={styles['cat-modal__divider']} aria-hidden="true" />
 
         {/* ── Category Grid ──────────────────────────────── */}
         <div
-          className="cat-modal__grid"
+          className={styles['cat-modal__grid']}
           role="list"
           aria-label="All learning categories"
         >
           {categories.map((category, idx) => (
             <div
               key={category.id}
-              className="cat-modal__grid-item"
+              className={styles['cat-modal__grid-item']}
               role="listitem"
               style={{ animationDelay: `${idx * 0.04}s` }}
             >

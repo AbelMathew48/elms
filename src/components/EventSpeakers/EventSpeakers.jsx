@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import styles from './EventSpeakers.module.css';
-import { speakers } from '../data/data';
+import { speakers } from '../../data/data';
 
 const EventSpeakers = () => {
   return (

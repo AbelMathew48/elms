@@ -23,7 +23,7 @@
 import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 import CategoryCard from './CategoryCard';
-import './CategoryGrid.css';
+import styles from './CategoryGrid.module.css';
 
 /* ── Empty State Sub-Component ───────────────────────────── */
 /**
@@ -32,12 +32,12 @@ import './CategoryGrid.css';
  * Reusable pattern for graceful empty handling.
  */
 const EmptyState = () => (
-  <div className="category-grid__empty" role="status" aria-live="polite">
-    <div className="category-grid__empty-icon" aria-hidden="true">
+  <div className={styles['category-grid__empty']} role="status" aria-live="polite">
+    <div className={styles['category-grid__empty-icon']} aria-hidden="true">
       <FaSearch size="2.5rem" />
     </div>
-    <h3 className="category-grid__empty-title">No Categories Found</h3>
-    <p className="category-grid__empty-text">
+    <h3 className={styles['category-grid__empty-title']}>No Categories Found</h3>
+    <p className={styles['category-grid__empty-text']}>
       Try selecting a different filter to explore more categories.
     </p>
   </div>
@@ -57,13 +57,13 @@ const CategoryGrid = ({ categories, onCategoryClick }) => {
 
   return (
     <section
-      className="category-grid"
+      className={styles['category-grid']}
       aria-label="Categories grid"
     >
       {categories.map((category, index) => (
         <div
           key={category.id}
-          className="category-grid__item"
+          className={styles['category-grid__item']}
           /* Stagger entry animation per card using inline delay */
           style={{ animationDelay: `${index * 0.07}s` }}
         >

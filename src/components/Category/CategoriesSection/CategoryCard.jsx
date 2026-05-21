@@ -14,7 +14,7 @@
 import React from 'react';
 import { FaBook, FaBriefcase, FaCalendarAlt, FaFire } from 'react-icons/fa';
 import CategoryIcon from './CategoryIcon';
-import './CategoryCard.css';
+import styles from './CategoryCard.module.css';
 
 /* ── Color Scheme Registry ─────────────────────────────── */
 const colorSchemes = {
@@ -34,14 +34,14 @@ const colorSchemes = {
 
 /* ── Stat Item Sub-component ───────────────────────────── */
 const StatItem = ({ icon, count, label, color, isLoading }) => (
-  <div className="category-card__stat" role="listitem" aria-label={`${count} ${label}`}>
-    <span className="category-card__stat-icon" style={{ color }} aria-hidden="true">{icon}</span>
+  <div className={styles['category-card__stat']} role="listitem" aria-label={`${count} ${label}`}>
+    <span className={styles['category-card__stat-icon']} style={{ color }} aria-hidden="true">{icon}</span>
     {/* Show skeleton shimmer while stats load from API */}
     {isLoading
-      ? <span className="category-card__stat-skeleton" aria-label="Loading" />
-      : <span className="category-card__stat-count">{count ?? '—'}</span>
+      ? <span className={styles['category-card__stat-skeleton']} aria-label="Loading" />
+      : <span className={styles['category-card__stat-count']}>{count ?? '—'}</span>
     }
-    <span className="category-card__stat-label">{label}</span>
+    <span className={styles['category-card__stat-label']}>{label}</span>
   </div>
 );
 
@@ -62,7 +62,7 @@ const CategoryCard = ({ category, stats = {}, loadingStats = false, onCategoryCl
 
   return (
     <article
-      className="category-card"
+      className={styles['category-card']}
       id={`category-card-${id}`}
       role="button"
       tabIndex={0}
@@ -77,40 +77,40 @@ const CategoryCard = ({ category, stats = {}, loadingStats = false, onCategoryCl
     >
       {/* Popular badge — set dynamically from enrollmentCount threshold */}
       {isPopular && (
-        <div className="category-card__badge" aria-label="Trending">
+        <div className={styles['category-card__badge']} aria-label="Trending">
           <FaFire aria-hidden="true" size="0.6rem" />
           <span>Trending</span>
         </div>
       )}
 
       {/* Enrolled count (top-left) — dynamic from backend */}
-      <div className="category-card__enrolled" title="Total enrolled students">
+      <div className={styles['category-card__enrolled']} title="Total enrolled students">
         <span>{enrollmentCount?.toLocaleString()}</span>
-        <span className="category-card__enrolled-label">enrolled</span>
+        <span className={styles['category-card__enrolled-label']}>enrolled</span>
       </div>
 
       {/* Icon */}
-      <div className="category-card__icon-wrap" aria-hidden="true">
-        <div className="category-card__icon-bg">
+      <div className={styles['category-card__icon-wrap']} aria-hidden="true">
+        <div className={styles['category-card__icon-bg']}>
           <CategoryIcon iconName={iconName} size="1.6rem" color={scheme.primary} />
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="category-card__title">{title}</h3>
+      <h3 className={styles['category-card__title']}>{title}</h3>
 
       {/* Divider */}
-      <div className="category-card__divider" aria-hidden="true" />
+      <div className={styles['category-card__divider']} aria-hidden="true" />
 
       {/* Dynamic stats row */}
-      <div className="category-card__stats" role="list">
+      <div className={styles['category-card__stats']} role="list">
         <StatItem icon={<FaBook size="0.65rem" />}        count={coursesCount} label="Courses" color={scheme.primary} isLoading={loadingStats} />
         <StatItem icon={<FaBriefcase size="0.65rem" />}   count={jobsCount}    label="Jobs"    color={scheme.primary} isLoading={loadingStats} />
         <StatItem icon={<FaCalendarAlt size="0.65rem" />} count={eventsCount}  label="Events"  color={scheme.primary} isLoading={loadingStats} />
       </div>
 
       {/* Hover glow overlay */}
-      <div className="category-card__glow" aria-hidden="true" />
+      <div className={styles['category-card__glow']} aria-hidden="true" />
     </article>
   );
 };

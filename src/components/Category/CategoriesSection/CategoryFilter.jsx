@@ -23,7 +23,7 @@
  */
 
 import React from 'react';
-import './CategoryFilter.css';
+import styles from './CategoryFilter.module.css';
 
 /* ── Component ───────────────────────────────────────────── */
 const CategoryFilter = ({
@@ -53,16 +53,16 @@ const CategoryFilter = ({
   };
 
   return (
-    <div className="category-filter" role="tablist" aria-label="Category filters">
+    <div className={styles['category-filter']} role="tablist" aria-label="Category filters">
       {/* ── Filter Buttons ─────────────────────────────── */}
-      <div className="category-filter__tabs">
+      <div className={styles['category-filter__tabs']}>
         {filters.map((filter) => {
           const isActive = activeFilter === filter.key;
           return (
             <button
               key={filter.key}
               id={`filter-tab-${filter.key}`}
-              className={`category-filter__tab ${isActive ? 'category-filter__tab--active' : ''}`}
+              className={`${styles['category-filter__tab']} ${isActive ? styles['category-filter__tab--active'] : ''}`}
               role="tab"
               aria-selected={isActive}
               onClick={() => handleFilterClick(filter.key)}
@@ -71,7 +71,7 @@ const CategoryFilter = ({
             >
               {/* Optional icon */}
               {filter.icon && (
-                <span className="category-filter__tab-icon" aria-hidden="true">
+                <span className={styles['category-filter__tab-icon']} aria-hidden="true">
                   {filter.icon}
                 </span>
               )}
@@ -82,9 +82,9 @@ const CategoryFilter = ({
       </div>
 
       {/* ── Total Count Badge ──────────────────────────── */}
-      <div className="category-filter__count" aria-live="polite">
-        <span className="category-filter__count-number">{totalCount}</span>
-        <span className="category-filter__count-label">Categories</span>
+      <div className={styles['category-filter__count']} aria-live="polite">
+        <span className={styles['category-filter__count-number']}>{totalCount}</span>
+        <span className={styles['category-filter__count-label']}>Categories</span>
       </div>
     </div>
   );

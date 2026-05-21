@@ -3,7 +3,7 @@
  * @description Main categories section component that coordinates tabs, carousel, and featured content.
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { categories } from '../data/data';
+import { categories } from '../../../data/data';
 import styles from './Categories.module.css';
 
 const Categories = () => {
