@@ -16,7 +16,7 @@
 import React, { useRef, useEffect } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import CategoryCard from './CategoryCard';
-import './CategoryCarousel.css';
+import styles from './CategoryCarousel.module.css';
 
 const CategoryCarousel = ({
   categories,
@@ -54,7 +54,7 @@ const CategoryCarousel = ({
 
   return (
     <div
-      className="category-carousel"
+      className={styles['category-carousel']}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       aria-label="Categories carousel"
@@ -63,7 +63,7 @@ const CategoryCarousel = ({
       {/* ── Prev Arrow ─────────────────────────────────── */}
       <button
         id="carousel-prev-btn"
-        className="category-carousel__arrow category-carousel__arrow--prev"
+        className={`${styles['category-carousel__arrow']} ${styles['category-carousel__arrow--prev']}`}
         onClick={handlePrev}
         aria-label="Previous categories"
         type="button"
@@ -74,7 +74,7 @@ const CategoryCarousel = ({
 
       {/* ── Card Track ─────────────────────────────────── */}
       <div
-        className="category-carousel__track"
+        className={styles['category-carousel__track']}
         ref={trackRef}
         aria-live="polite"
         aria-atomic="true"
@@ -83,7 +83,7 @@ const CategoryCarousel = ({
         {visibleCards.map((category, idx) => (
           <div
             key={`${category.id}-${currentPage}`}
-            className="category-carousel__slide"
+            className={styles['category-carousel__slide']}
             style={{ animationDelay: `${idx * 0.06}s` }}
             role="group"
             aria-roledescription="slide"
@@ -99,14 +99,14 @@ const CategoryCarousel = ({
         ))}
         {/* Render empty placeholders to prevent stretching if total categories < visibleCount */}
         {Array.from({ length: visibleCount - visibleCards.length }).map((_, idx) => (
-          <div key={`empty-${idx}`} className="category-carousel__slide" aria-hidden="true" />
+          <div key={`empty-${idx}`} className={styles['category-carousel__slide']} aria-hidden="true" />
         ))}
       </div>
 
       {/* ── Next Arrow ─────────────────────────────────── */}
       <button
         id="carousel-next-btn"
-        className="category-carousel__arrow category-carousel__arrow--next"
+        className={`${styles['category-carousel__arrow']} ${styles['category-carousel__arrow--next']}`}
         onClick={handleNext}
         aria-label="Next categories"
         type="button"

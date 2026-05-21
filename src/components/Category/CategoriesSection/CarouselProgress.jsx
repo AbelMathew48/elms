@@ -14,7 +14,7 @@
  */
 
 import React from 'react';
-import './CarouselProgress.css';
+import styles from './CarouselProgress.module.css';
 
 const CarouselProgress = ({
   currentPage,
@@ -24,23 +24,23 @@ const CarouselProgress = ({
   autoPlayInterval = 4500,
   onDotClick,
 }) => (
-  <div className="carousel-progress" aria-label="Carousel navigation">
+  <div className={styles['carousel-progress']} aria-label="Carousel navigation">
 
 
     {/* ── Progress Bar ───────────────────────────────── */}
 
-    <div className="carousel-progress__bar-wrap" aria-hidden="true">
+    <div className={styles['carousel-progress__bar-wrap']} aria-hidden="true">
       {/* key on Fragment forces remount (CSS animation restart) on each slide change */}
       <React.Fragment key={`progress-${progressKey}`}>
         <div
-          className={`carousel-progress__bar-fill ${isPaused ? 'carousel-progress__bar-fill--paused' : ''}`}
+          className={`${styles['carousel-progress__bar-fill']} ${isPaused ? styles['carousel-progress__bar-fill--paused'] : ''}`}
           style={{ animationDuration: `${autoPlayInterval}ms` }}
         />
       </React.Fragment>
     </div>
 
     {/* ── Dot Indicators ─────────────────────────────── */}
-    <div className="carousel-progress__dots" role="tablist" aria-label="Slide navigation">
+    <div className={styles['carousel-progress__dots']} role="tablist" aria-label="Slide navigation">
       {Array.from({ length: numPages }, (_, i) => (
         <button
           key={i}
@@ -49,14 +49,14 @@ const CarouselProgress = ({
           role="tab"
           aria-selected={i === currentPage}
           aria-label={`Go to slide ${i + 1} of ${numPages}`}
-          className={`carousel-progress__dot ${i === currentPage ? 'carousel-progress__dot--active' : ''}`}
+          className={`${styles['carousel-progress__dot']} ${i === currentPage ? styles['carousel-progress__dot--active'] : ''}`}
           onClick={() => onDotClick(i)}
         />
       ))}
     </div>
 
     {/* ── Navigation hint text ───────────────────────── */}
-    <p className="carousel-progress__hint" aria-hidden="true">
+    <p className={styles['carousel-progress__hint']} aria-hidden="true">
       Use arrows or dots to navigate
     </p>
 

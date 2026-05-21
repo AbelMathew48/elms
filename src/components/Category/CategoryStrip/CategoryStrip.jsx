@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, useRef } from 'react';
 import CategoryItem from './CategoryItem';
 import { Link }     from 'react-router-dom';
@@ -223,9 +221,9 @@ export default function CategoryStrip({ categories }) {
               scrollBehavior: 'smooth',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
-              padding: '12px 0 24px', // bottom padding ensures the card lifts/hover animations aren't cut off, 0 horizontal padding
-              margin: 0, // no horizontal margins so card widths fit 100% of container perfectly
-              scrollSnapType: 'x mandatory', // Enable horizontal scroll snapping
+              padding: '12px 0 24px',
+              margin: 0,
+              scrollSnapType: 'x mandatory',
             }}
             className="category-slider"
             onMouseEnter={() => setIsHovered(true)}
@@ -262,30 +260,30 @@ export default function CategoryStrip({ categories }) {
         }
 
         .category-card-wrapper {
-          flex: 0 0 calc((100% - 20px) / 2); /* mobile: exactly 2 cards fit */
+          flex: 0 0 calc((100% - 20px) / 2);
           scroll-snap-align: start;
           scroll-snap-stop: always;
         }
 
         .category-card-wrapper:last-child {
-          scroll-snap-align: start end; /* ensures final card snaps beautifully to the right edge at scroll ending */
+          scroll-snap-align: start end;
         }
 
         @media (min-width: 576px) {
           .category-card-wrapper {
-            flex: 0 0 calc((100% - 40px) / 3); /* small tablet: exactly 3 cards fit */
+            flex: 0 0 calc((100% - 40px) / 3);
           }
         }
 
         @media (min-width: 768px) {
           .category-card-wrapper {
-            flex: 0 0 calc((100% - 60px) / 4); /* medium tablet: exactly 4 cards fit */
+            flex: 0 0 calc((100% - 60px) / 4);
           }
         }
 
         @media (min-width: 992px) {
           .category-card-wrapper {
-            flex: 0 0 calc((100% - 80px) / 5); /* desktop: exactly 5 cards fit (minimum 5!) */
+            flex: 0 0 calc((100% - 80px) / 5);
           }
         }
 
@@ -330,13 +328,13 @@ export default function CategoryStrip({ categories }) {
         }
 
         .category-slider-arrow-btn:before {
-          border: 4px solid #120F2D1a; /* elegant dark transparent border */
+          border: 4px solid #120F2D1a;
           transition: opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1) 80ms,
             transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) 80ms;
         }
 
         .category-slider-arrow-btn:after {
-          border: 4px solid #2878EB; /* primary brand blue */
+          border: 4px solid #2878EB;
           transform: scale(1.3);
           transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
             transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -371,16 +369,16 @@ export default function CategoryStrip({ categories }) {
           width: 20px;
           height: 20px;
           margin: 17px 18px 0 18px;
-          fill: #120F2D; /* elegant dark fill color */
+          fill: #120F2D;
           transition: fill 0.3s ease;
         }
 
         .left-arrow-btn .arrow-btn-elem {
-          transform: rotate(180deg); /* points left */
+          transform: rotate(180deg);
         }
 
         .right-arrow-btn .arrow-btn-elem {
-          transform: rotate(0deg); /* points right */
+          transform: rotate(0deg);
         }
 
         /* Sliding continuous animation on hover */
@@ -391,7 +389,7 @@ export default function CategoryStrip({ categories }) {
         }
 
         .category-slider-arrow-btn:hover .arrow-btn-elem {
-          fill: #2878EB; /* changes to primary blue on hover */
+          fill: #2878EB;
         }
 
         @keyframes cat-pulse {
@@ -400,6 +398,5 @@ export default function CategoryStrip({ categories }) {
         }
       `}</style>
     </div>
-    
   );
 }

@@ -35,11 +35,11 @@ import CarouselProgress from './CarouselProgress';
 import CategoryCard     from './CategoryCard';
 
 /* Custom hooks */
-import useCategories    from '../../hooks/useCategories';
-import useCategoryStats from '../../hooks/useCategoryStats';
-import useCarousel      from '../../hooks/useCarousel';
+import useCategories    from '../../../hooks/useCategories';
+import useCategoryStats from '../../../hooks/useCategoryStats';
+import useCarousel      from '../../../hooks/useCarousel';
 
-import './CategoriesSection.css';
+import styles from './CategoriesSection.module.css';
 
 /* ── Constants ──────────────────────────────────────────── */
 const AUTO_PLAY_INTERVAL = 4500;
@@ -56,14 +56,14 @@ const FILTER_OPTIONS = [
    ───────────────────────────────────────────────────────── */
 const BrowseAllView = ({ categories, statsMap, loadingStats, onCategoryClick, onBack }) => (
   /* key ensures animation re-triggers when this view mounts */
-  <div className="categories-section__view" key="browse-all-view">
+  <div className={styles['categories-section__view']} key="browse-all-view">
 
     {/* ── Top bar: back button + title ───────────────── */}
     <div className="browse-all__topbar">
       <button
         id="browse-all-back-btn"
         type="button"
-        className="browse-all__back-btn"
+        className={styles['browse-all__back-btn']}
         onClick={onBack}
         aria-label="Back to carousel view"
       >
@@ -72,17 +72,17 @@ const BrowseAllView = ({ categories, statsMap, loadingStats, onCategoryClick, on
       </button>
 
       <div>
-        <h2 className="browse-all__topbar-title">All Categories</h2>
-        <p className="browse-all__topbar-count">{categories.length} categories available</p>
+        <h2 className={styles['browse-all__topbar-title']}>All Categories</h2>
+        <p className={styles['browse-all__topbar-count']}>{categories.length} categories available</p>
       </div>
     </div>
 
     {/* ── Full scrollable grid ────────────────────────── */}
-    <div className="browse-all__grid" role="list" aria-label="All learning categories">
+    <div className={styles['browse-all__grid']} role="list" aria-label="All learning categories">
       {categories.map((category, idx) => (
         <div
           key={category.id}
-          className="browse-all__grid-item"
+          className={styles['browse-all__grid-item']}
           role="listitem"
           style={{ animationDelay: `${idx * 0.04}s` }}
         >
@@ -114,7 +114,7 @@ const CarouselView = ({
   onCategoryClick,
   onBrowseAll,
 }) => (
-  <div className="categories-section__view" key="carousel-view">
+  <div className={styles['categories-section__view']} key="carousel-view">
 
     {/* Section header */}
     <SectionHeader
@@ -125,12 +125,12 @@ const CarouselView = ({
     />
 
     {/* ── Toolbar: search bar (top row, centered) + filter tabs (below) ── */}
-    <div className="categories-section__toolbar">
+    <div className={styles['categories-section__toolbar']}>
 
       {/* Search bar — rendered first so it appears on top in column layout */}
-      <div className="categories-section__search-wrap">
+      <div className={styles['categories-section__search-wrap']}>
         <FaSearch
-          className="categories-section__search-icon"
+          className={styles['categories-section__search-icon']}
           aria-hidden="true"
           size="0.85rem"
         />
@@ -140,7 +140,7 @@ const CarouselView = ({
           placeholder="Search categories…"
           value={searchQuery}
           onChange={onSearchChange}
-          className="categories-section__search-input"
+          className={styles['categories-section__search-input']}
           aria-label="Search categories"
           autoComplete="off"
           spellCheck="false"
@@ -170,7 +170,7 @@ const CarouselView = ({
     {/* ── Bottom group: progress + CTA ──────────────────────────
         margin-top: auto pushes this block down to fill the remaining
         space in the 100svh container, so the bottom is never empty. */}
-    <div className="categories-section__bottom">
+    <div className={styles['categories-section__bottom']}>
       {/* Progress bar + dots + hint */}
       <CarouselProgress
         currentPage={carousel.currentPage}
@@ -182,11 +182,11 @@ const CarouselView = ({
       />
 
       {/* CTA — switches to Browse-All view in-place */}
-      <div className="categories-section__cta">
+      <div className={styles['categories-section__cta']}>
         <button
           id="categories-browse-all-btn"
           type="button"
-          className="categories-section__cta-btn"
+          className={styles['categories-section__cta-btn']}
           aria-label="Browse all learning categories"
           onClick={onBrowseAll}
         >
@@ -254,9 +254,9 @@ const CategoriesSection = () => {
   /* ── Loading State ───────────────────────────────────── */
   if (loading) {
     return (
-      <section className="categories-section" aria-busy="true">
-        <div className="categories-section__loading" role="status">
-          <div className="categories-section__spinner" aria-hidden="true" />
+      <section className={styles['categories-section']} aria-busy="true">
+        <div className={styles['categories-section__loading']} role="status">
+          <div className={styles['categories-section__spinner']} aria-hidden="true" />
           <p>Loading categories…</p>
         </div>
       </section>
@@ -266,8 +266,8 @@ const CategoriesSection = () => {
   /* ── Error State ─────────────────────────────────────── */
   if (error) {
     return (
-      <section className="categories-section">
-        <div className="categories-section__error" role="alert">
+      <section className={styles['categories-section']}>
+        <div className={styles['categories-section__error']} role="alert">
           <p>⚠️ {error.message}</p>
         </div>
       </section>
@@ -277,18 +277,18 @@ const CategoriesSection = () => {
   /* ── Main Render ─────────────────────────────────────── */
   return (
     <section
-      className="categories-section"
+      className={styles['categories-section']}
       id="categories"
       aria-labelledby={isBrowseAll ? 'browse-all-title' : 'section-header-headline'}
     >
       {/* Background blobs (always visible behind both views) */}
-      <div className="categories-section__bg-decor" aria-hidden="true">
-        <div className="categories-section__blob categories-section__blob--1" />
-        <div className="categories-section__blob categories-section__blob--2" />
-        <div className="categories-section__blob categories-section__blob--3" />
+      <div className={styles['categories-section__bg-decor']} aria-hidden="true">
+        <div className={`${styles['categories-section__blob']} ${styles['categories-section__blob--1']}`} />
+        <div className={`${styles['categories-section__blob']} ${styles['categories-section__blob--2']}`} />
+        <div className={`${styles['categories-section__blob']} ${styles['categories-section__blob--3']}`} />
       </div>
 
-      <div className="categories-section__container">
+      <div className={styles['categories-section__container']}>
         {/*
          * Conditional render with key prop forces React to unmount/remount
          * the view component, re-triggering the CSS entry animation each time

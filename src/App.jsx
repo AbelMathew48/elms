@@ -3,14 +3,15 @@
  * @description Root React component that composes the main homepage sections.
  */
 import React from 'react';
-import Categories from './components/Categories';
-import EventSpeakers from './components/EventSpeakers';
-import PopularCategories from './components/PopularCategories';
-import CategoriesSection from './components/categories/CategoriesSection';
-import CategoriesPage from './components/pages/CategoriesPage';
-import CategoryStrip from './components/CategoryStrip';
+import './App.css';
+import Categories from './components/Category/Categories/Categories';
+import EventSpeakers from './components/EventSpeakers/EventSpeakers';
+import PopularCategories from './components/Category/PopularCategories/PopularCategories';
+import CategoriesSection from './components/Category/CategoriesSection/CategoriesSection';
+import CategoriesPage from './components/Category/CategoriesPage/CategoriesPage';
+import CategoryStrip from './components/Category/CategoryStrip/CategoryStrip';
 import { CATEGORIES } from './data/data';
-import Certificate from './components/certificate/Certificate';
+import Certificate from './components/Certificate/Certificate';
 
 function App() {
   return (
