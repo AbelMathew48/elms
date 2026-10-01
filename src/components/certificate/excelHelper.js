@@ -23,10 +23,7 @@ const CONTENT_PATTERNS = [
   'reason', 'description', 'subject', 'track', 'event', 'workshop'
 ];
 
-const ID_PATTERNS = [
-  'id', 'cert id', 'cert_id', 'certificate id', 'certificate code',
-  'code', 'reg no', 'registration no', 'roll no', 'serial', 'number'
-];
+
 
 /**
  * Intelligent helper to score and match header name
@@ -112,7 +109,6 @@ export const readExcelFile = async (file) => {
         const nameField = findBestHeaderMatch(headers, NAME_PATTERNS) || headers[0] || '';
         const dateField = findBestHeaderMatch(headers, DATE_PATTERNS);
         const contentField = findBestHeaderMatch(headers, CONTENT_PATTERNS);
-        const idField = findBestHeaderMatch(headers, ID_PATTERNS);
 
         resolve({
           sheetNames,
@@ -121,8 +117,7 @@ export const readExcelFile = async (file) => {
           detectedMapping: {
             name: nameField,
             date: dateField,
-            content: contentField,
-            id: idField
+            content: contentField
           }
         });
       } catch (err) {
@@ -142,12 +137,12 @@ export const readExcelFile = async (file) => {
  */
 export const parseManualPastedText = (text) => {
   if (!text || !text.trim()) {
-    return { headers: ['Name'], rows: [], detectedMapping: { name: 'Name', date: '', content: '', id: '' } };
+    return { headers: ['Name'], rows: [], detectedMapping: { name: 'Name', date: '', content: '' } };
   }
 
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (lines.length === 0) {
-    return { headers: ['Name'], rows: [], detectedMapping: { name: 'Name', date: '', content: '', id: '' } };
+    return { headers: ['Name'], rows: [], detectedMapping: { name: 'Name', date: '', content: '' } };
   }
 
   // Check if first line contains delimiter (tab, comma, semicolon)
@@ -188,12 +183,11 @@ export const parseManualPastedText = (text) => {
     const nameField = findBestHeaderMatch(headers, NAME_PATTERNS) || headers[0] || '';
     const dateField = findBestHeaderMatch(headers, DATE_PATTERNS);
     const contentField = findBestHeaderMatch(headers, CONTENT_PATTERNS);
-    const idField = findBestHeaderMatch(headers, ID_PATTERNS);
 
     return {
       headers,
       rows,
-      detectedMapping: { name: nameField, date: dateField, content: contentField, id: idField }
+      detectedMapping: { name: nameField, date: dateField, content: contentField }
     };
   }
 
@@ -202,7 +196,7 @@ export const parseManualPastedText = (text) => {
   return {
     headers: ['Name'],
     rows,
-    detectedMapping: { name: 'Name', date: '', content: '', id: '' }
+    detectedMapping: { name: 'Name', date: '', content: '' }
   };
 };
 
@@ -211,36 +205,37 @@ export const parseManualPastedText = (text) => {
  * @param {'xlsx' | 'csv'} format 
  */
 export const downloadSampleExcelFile = (format = 'xlsx') => {
+  const now = new Date();
+  const d = String(now.getDate()).padStart(2, '0');
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const y = now.getFullYear();
+  const todayDmy = `${d}/${m}/${y}`;
+
   const sampleData = [
     {
       "Recipient Name": "Alex Johnson",
       "Course / Subject": "Full Stack React & Modern Cloud Architecture",
-      "Date": "2026-09-30",
-      "Certificate ID": "ELMS-2026-001"
+      "Date": todayDmy
     },
     {
       "Recipient Name": "Sarah Williams",
       "Course / Subject": "Advanced UI/UX & Design Systems Mastery",
-      "Date": "2026-09-30",
-      "Certificate ID": "ELMS-2026-002"
+      "Date": todayDmy
     },
     {
       "Recipient Name": "Michael Brown",
       "Course / Subject": "Artificial Intelligence & Agentic Workflows",
-      "Date": "2026-09-30",
-      "Certificate ID": "ELMS-2026-003"
+      "Date": todayDmy
     },
     {
       "Recipient Name": "Emma Davis",
       "Course / Subject": "Data Engineering & Analytics Architecture",
-      "Date": "2026-09-30",
-      "Certificate ID": "ELMS-2026-004"
+      "Date": todayDmy
     },
     {
       "Recipient Name": "David Wilson",
       "Course / Subject": "Cybersecurity & Enterprise Infrastructure",
-      "Date": "2026-09-30",
-      "Certificate ID": "ELMS-2026-005"
+      "Date": todayDmy
     }
   ];
 
@@ -250,8 +245,7 @@ export const downloadSampleExcelFile = (format = 'xlsx') => {
   worksheet['!cols'] = [
     { wch: 22 }, // Recipient Name
     { wch: 45 }, // Course / Subject
-    { wch: 14 }, // Date
-    { wch: 18 }  // Certificate ID
+    { wch: 14 }  // Date
   ];
 
   const workbook = XLSX.utils.book_new();

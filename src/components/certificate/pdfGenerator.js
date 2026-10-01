@@ -18,16 +18,26 @@ export const sanitizeFileName = (name) => {
 };
 
 /**
- * Format display date (e.g. 2026-09-30 -> 30 - 09 - 2026)
+ * Format display date in stylish spaced DD / MM / YYYY format
  */
 export const formatDisplayDate = (dateStr) => {
   if (!dateStr) return '';
-  const parts = String(dateStr).split('-');
-  if (parts.length === 3) {
-    const [y, m, d] = parts;
-    return `${d} - ${m} - ${y}`;
+  const str = String(dateStr).trim();
+  // Handle ISO format: YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    const [y, m, d] = str.split('-');
+    return `${d} / ${m} / ${y}`;
   }
-  return String(dateStr);
+  // Handle DD/MM/YYYY, DD-MM-YYYY, or already spaced DD / MM / YYYY
+  const clean = str.replace(/\s+/g, '');
+  if (/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(clean)) {
+    const parts = clean.split(/[/-]/);
+    const d = parts[0].padStart(2, '0');
+    const m = parts[1].padStart(2, '0');
+    const y = parts[2];
+    return `${d} / ${m} / ${y}`;
+  }
+  return str;
 };
 
 /**
@@ -366,6 +376,100 @@ export const generateBulkPdfsAsZip = async (baseConfig, recipients, onProgress, 
       total,
       percent: 100,
       status: `Successfully downloaded ${total} certificates in ZIP!`
+    });
+  }
+};
+
+/**
+ * Generates individual high-resolution PNGs for each recipient and downloads them as a single ZIP.
+ */
+export const generateBulkPngsAsZip = async (baseConfig, recipients, onProgress, abortRef) => {
+  if (!recipients || recipients.length === 0) {
+    throw new Error('No recipients provided for bulk generation.');
+  }
+
+  const zip = new JSZip();
+  const folder = zip.folder('Certificates');
+  const total = recipients.length;
+
+  for (let i = 0; i < total; i++) {
+    if (abortRef && abortRef.current?.cancelled) {
+      throw new Error('Bulk generation was cancelled by the user.');
+    }
+
+    const recipient = recipients[i];
+    const currentName = recipient.name || `Recipient_${i + 1}`;
+
+    if (onProgress) {
+      onProgress({
+        current: i + 1,
+        total,
+        percent: Math.round(((i + 1) / total) * 90),
+        currentName,
+        status: `Rendering PNG ${i + 1} of ${total}: ${currentName}...`
+      });
+    }
+
+    // Yield control to UI thread so progress bar updates smoothly
+    await new Promise((r) => setTimeout(r, 20));
+
+    // Render recipient canvas
+    const canvas = await renderCertificateToCanvas({
+      ...baseConfig,
+      name: recipient.name,
+      date: recipient.date || baseConfig.defaultDate,
+      content: recipient.content || baseConfig.defaultContent
+    });
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+    const safeName = sanitizeFileName(recipient.name || `Recipient_${i + 1}`);
+    const fileName = `Certificate_${i + 1}_${safeName}.png`;
+
+    folder.file(fileName, base64Data, {base64: true});
+  }
+
+  if (abortRef && abortRef.current?.cancelled) {
+    throw new Error('Bulk generation was cancelled.');
+  }
+
+  if (onProgress) {
+    onProgress({
+      current: total,
+      total,
+      percent: 95,
+      currentName: 'Compressing archive...',
+      status: `Packaging ${total} PNG certificates into ZIP archive...`
+    });
+  }
+
+  const zipBlob = await zip.generateAsync(
+    { type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 5 } },
+    (metadata) => {
+      if (onProgress) {
+        onProgress({
+          current: total,
+          total,
+          percent: 90 + Math.round(metadata.percent * 0.1),
+          status: `Compressing ZIP archive: ${Math.round(metadata.percent)}%`
+        });
+      }
+    }
+  );
+
+  // Trigger browser download
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(zipBlob);
+  link.download = `Certificates_Batch_${total}_PNG_Recipients.zip`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+
+  if (onProgress) {
+    onProgress({
+      current: total,
+      total,
+      percent: 100,
+      status: `Successfully downloaded ${total} PNG certificates in ZIP!`
     });
   }
 };

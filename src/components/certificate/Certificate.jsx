@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
 import styles from './Certificate.module.css';
 import { 
   PRESET_COLORS, 
@@ -12,10 +13,14 @@ import {
 import { 
   downloadSinglePdf, 
   downloadSinglePng, 
-  generateBulkPdfsAsZip, 
+  generateBulkPdfsAsZip,
+  generateBulkPngsAsZip,
   generateBulkMergedPdf,
   formatDisplayDate 
 } from './pdfGenerator';
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 // Helper Set to track loaded fonts and avoid duplicate loads
 const loadedFonts = new Set();
@@ -36,23 +41,99 @@ const loadGoogleFont = (fontName) => {
   loadedFonts.add(normalizedName);
 };
 
+const GOOGLE_FONTS_API_KEY = 'AIzaSyDrHu5GNIL1HGEfKLUH0a2HNbqSnxP6bCU';
+
+// Common system fonts that are available on most devices
+const SYSTEM_FONTS = [
+  { value: 'Times New Roman', category: 'System Serif' },
+  { value: 'Georgia', category: 'System Serif' },
+  { value: 'Garamond', category: 'System Serif' },
+  { value: 'Palatino Linotype', category: 'System Serif' },
+  { value: 'Book Antiqua', category: 'System Serif' },
+  { value: 'Arial', category: 'System Sans' },
+  { value: 'Helvetica', category: 'System Sans' },
+  { value: 'Verdana', category: 'System Sans' },
+  { value: 'Tahoma', category: 'System Sans' },
+  { value: 'Trebuchet MS', category: 'System Sans' },
+  { value: 'Segoe UI', category: 'System Sans' },
+  { value: 'Calibri', category: 'System Sans' },
+  { value: 'Cambria', category: 'System Serif' },
+  { value: 'Impact', category: 'System Display' },
+  { value: 'Comic Sans MS', category: 'System Casual' },
+  { value: 'Courier New', category: 'System Mono' },
+  { value: 'Lucida Console', category: 'System Mono' },
+  { value: 'Brush Script MT', category: 'System Script' },
+].map(f => ({ ...f, label: `${f.value} (${f.category})` }));
+
+// Cache the font list so it's only fetched once per session
+let _googleFontsCache = null;
+
+const fetchGoogleFonts = async () => {
+  if (_googleFontsCache) return _googleFontsCache;
+  const res = await fetch(
+    `https://www.googleapis.com/webfonts/v1/webfonts?key=${GOOGLE_FONTS_API_KEY}&sort=popularity&fields=items(family,category)`
+  );
+  if (!res.ok) throw new Error('Failed to fetch Google Fonts');
+  const data = await res.json();
+  const CATEGORY_LABELS = {
+    'sans-serif': 'Sans-Serif',
+    'serif': 'Serif',
+    'display': 'Display',
+    'handwriting': 'Handwriting',
+    'monospace': 'Monospace',
+  };
+  const googleFonts = data.items.map(f => ({
+    value: f.family,
+    label: `${f.family} (${CATEGORY_LABELS[f.category] || f.category})`,
+    category: CATEGORY_LABELS[f.category] || f.category,
+  }));
+  // Prepend system fonts before Google Fonts
+  _googleFontsCache = [...SYSTEM_FONTS, ...googleFonts];
+  return _googleFontsCache;
+};
+
 // Custom Searchable Combobox Component
 const FontSelector = ({ value, onChange, placeholder = "Select Font" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [fonts, setFonts] = useState(
+    ALL_FONTS.map(f => ({
+      ...f,
+      category: f.label.split('(')[1]?.replace(')', '') || 'Style',
+    }))
+  );
+  const [isLoadingFonts, setIsLoadingFonts] = useState(false);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const containerRef = useRef(null);
   const activeRef = useRef(null);
+  const listRef = useRef(null);
+
+  // Fetch all Google Fonts when dropdown first opens
+  const loadFonts = async () => {
+    if (fontsLoaded || isLoadingFonts) return;
+    setIsLoadingFonts(true);
+    try {
+      const data = await fetchGoogleFonts();
+      setFonts(data);
+      setFontsLoaded(true);
+    } catch {
+      // silently keep the static fallback list
+    } finally {
+      setIsLoadingFonts(false);
+    }
+  };
 
   const handleOpen = () => {
-    setSearch(value);
+    setSearch('');
     setIsOpen(true);
+    loadFonts();
   };
 
   useEffect(() => {
     if (isOpen && activeRef.current) {
       activeRef.current.scrollIntoView({ block: 'nearest', behavior: 'auto' });
     }
-  }, [isOpen]);
+  }, [isOpen, fonts]);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -64,9 +145,9 @@ const FontSelector = ({ value, onChange, placeholder = "Select Font" }) => {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  const filteredFonts = ALL_FONTS.filter(f => 
-    f.value.toLowerCase().includes(search.toLowerCase()) || 
-    f.label.toLowerCase().includes(search.toLowerCase())
+  const filteredFonts = fonts.filter(f =>
+    f.value.toLowerCase().includes(search.toLowerCase()) ||
+    (f.category || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSelect = (fontName) => {
@@ -78,29 +159,26 @@ const FontSelector = ({ value, onChange, placeholder = "Select Font" }) => {
   return (
     <div className={styles.fontSelectContainer} ref={containerRef}>
       <div className={styles.fontSelectWrapper}>
-        <input 
+        <input
           type="text"
           className={styles.fontSearchInput}
           value={isOpen ? search : value}
           onChange={(e) => {
             setSearch(e.target.value);
-            if (!isOpen) setIsOpen(true);
+            if (!isOpen) { setIsOpen(true); loadFonts(); }
           }}
           onFocus={(e) => {
             handleOpen();
-            setTimeout(() => {
-              if (e.target) e.target.select();
-            }, 50);
+            setTimeout(() => { if (e.target) e.target.select(); }, 50);
           }}
-          onClick={() => {
-            if (!isOpen) handleOpen();
-          }}
+          onClick={() => { if (!isOpen) handleOpen(); }}
           placeholder={placeholder}
+          style={{ fontFamily: value ? `"${value}", sans-serif` : undefined }}
         />
-        <button 
-          type="button" 
+        <button
+          type="button"
           className={`${styles.dropdownArrowBtn} ${isOpen ? styles.dropdownArrowBtnOpen : ''}`}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => { if (!isOpen) { handleOpen(); } else { setIsOpen(false); } }}
           aria-label="Toggle font list"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -110,24 +188,34 @@ const FontSelector = ({ value, onChange, placeholder = "Select Font" }) => {
       </div>
 
       {isOpen && (
-        <ul className={styles.fontDropdownList}>
-          {filteredFonts.length > 0 ? (
-            filteredFonts.map((f) => (
-              <li 
-                key={f.value} 
+        <ul className={styles.fontDropdownList} ref={listRef}>
+          {isLoadingFonts ? (
+            <li className={styles.fontDropdownLoading}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}>
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Loading 1500+ fonts...
+            </li>
+          ) : filteredFonts.length > 0 ? (
+            filteredFonts.slice(0, 120).map((f) => (
+              <li
+                key={f.value}
                 ref={value === f.value ? activeRef : null}
                 className={`${styles.fontDropdownItem} ${value === f.value ? styles.fontDropdownItemActive : ''}`}
                 onClick={() => handleSelect(f.value)}
                 style={{ fontFamily: `"${f.value}", sans-serif` }}
               >
                 <span className={styles.fontItemName}>{f.value}</span>
-                <span className={styles.fontItemCategory}>
-                  {f.label.split('(')[1]?.replace(')', '') || 'Style'}
-                </span>
+                <span className={styles.fontItemCategory}>{f.category}</span>
               </li>
             ))
           ) : (
             <li className={styles.fontDropdownNoResults}>No fonts found</li>
+          )}
+          {!isLoadingFonts && filteredFonts.length > 120 && (
+            <li className={styles.fontDropdownMoreHint}>
+              {filteredFonts.length - 120} more - type to filter
+            </li>
           )}
         </ul>
       )}
@@ -145,9 +233,15 @@ const Certificate = () => {
   const [templateDimensions, setTemplateDimensions] = useState(null);
   
   // Single Recipient inputs
-  const [name, setName] = useState('Alexander Vance');
-  const [date, setDate] = useState('2026-09-30');
-  const [content, setContent] = useState('for successfully completing the curriculum with distinction.');
+  const [name, setName] = useState('');
+  const [date, setDate] = useState(() => {
+    const now = new Date();
+    const d = String(now.getDate()).padStart(2, '0');
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const y = now.getFullYear();
+    return `${d} / ${m} / ${y}`;
+  });
+  const [content, setContent] = useState('');
   
   // Custom overlays styling & position state
   const [activeTab, setActiveTab] = useState('name'); // 'name', 'date', 'content', 'sign'
@@ -183,24 +277,18 @@ const Certificate = () => {
   const [signSize, setSignSize] = useState(20);
 
   // Bulk generation state
-  const [recipients, setRecipients] = useState([
-    { id: '1', name: 'Alex Johnson', date: '2026-09-30', content: 'Full Stack React & Modern Cloud Architecture', isSelected: true },
-    { id: '2', name: 'Sarah Williams', date: '2026-09-30', content: 'Advanced UI/UX & Design Systems Mastery', isSelected: true },
-    { id: '3', name: 'Michael Brown', date: '2026-09-30', content: 'Artificial Intelligence & Agentic Workflows', isSelected: true },
-    { id: '4', name: 'Emma Davis', date: '2026-09-30', content: 'Data Engineering & Analytics Architecture', isSelected: true },
-    { id: '5', name: 'David Wilson', date: '2026-09-30', content: 'Cybersecurity & Enterprise Infrastructure', isSelected: true }
-  ]);
-  const [rawHeaders, setRawHeaders] = useState(['Recipient Name', 'Course / Subject', 'Date', 'Certificate ID']);
+  const [recipients, setRecipients] = useState([]);
+  const [rawHeaders, setRawHeaders] = useState(['Recipient Name', 'Course / Subject', 'Date']);
   const [columnMapping, setColumnMapping] = useState({
     name: 'Recipient Name',
     date: 'Date',
-    content: 'Course / Subject',
-    id: 'Certificate ID'
+    content: 'Course / Subject'
   });
-  const [uploadedFileName, setUploadedFileName] = useState('sample_recipients.xlsx');
+  const [uploadedFileName, setUploadedFileName] = useState('');
   const [excelDragActive, setExcelDragActive] = useState(false);
   const [showManualPaste, setShowManualPaste] = useState(false);
   const [manualPasteText, setManualPasteText] = useState('');
+  const [manualPasteContent, setManualPasteContent] = useState('');
   const [tableSearch, setTableSearch] = useState('');
   const [activePreviewIndex, setActivePreviewIndex] = useState(0);
 
@@ -222,10 +310,190 @@ const Certificate = () => {
   const wrapperRef = useRef(null);
   const fileInputRef = useRef(null);
   const excelFileInputRef = useRef(null);
+  const calendarPopoverRef = useRef(null);
+  const dayInputRef = useRef(null);
+  const monthInputRef = useRef(null);
+  const yearInputRef = useRef(null);
   const nameColorInputRef = useRef(null);
   const dateColorInputRef = useRef(null);
   const contentColorInputRef = useRef(null);
   const abortRef = useRef({ cancelled: false });
+
+  // Helper: parse DD / MM / YYYY or YYYY-MM-DD into parts
+  const parseDateParts = (dateStr) => {
+    if (typeof dateStr !== 'string') return { day: '', month: '', year: '' };
+    const clean = dateStr.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+      const [y, m, d] = clean.split('-');
+      return { day: d, month: m, year: y };
+    }
+    const parts = clean.split(/[\/ -]/).map(p => p.trim()).filter(Boolean);
+    if (parts.length === 3) {
+      return { day: parts[0].slice(0, 2), month: parts[1].slice(0, 2), year: parts[2].slice(0, 4) };
+    }
+    const now = new Date();
+    return {
+      day: String(now.getDate()).padStart(2, '0'),
+      month: String(now.getMonth() + 1).padStart(2, '0'),
+      year: String(now.getFullYear())
+    };
+  };
+
+  const { day: dateDay, month: dateMonth, year: dateYear } = parseDateParts(date);
+
+  const handleDayChange = (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+    setDate(`${val} / ${dateMonth} / ${dateYear}`);
+    if (val.length === 2 && monthInputRef.current) {
+      monthInputRef.current.focus();
+      monthInputRef.current.select();
+    }
+  };
+
+  const handleMonthChange = (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+    setDate(`${dateDay} / ${val} / ${dateYear}`);
+    if (val.length === 2 && yearInputRef.current) {
+      yearInputRef.current.focus();
+      yearInputRef.current.select();
+    }
+  };
+
+  const handleYearChange = (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setDate(`${dateDay} / ${dateMonth} / ${val}`);
+  };
+
+  const handleDayKeyDown = (e) => {
+    if (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length) monthInputRef.current?.focus();
+  };
+
+  const handleMonthKeyDown = (e) => {
+    if (e.key === 'Backspace' && !dateMonth) dayInputRef.current?.focus();
+    else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0) dayInputRef.current?.focus();
+    else if (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length) yearInputRef.current?.focus();
+  };
+
+  const handleYearKeyDown = (e) => {
+    if (e.key === 'Backspace' && !dateYear) monthInputRef.current?.focus();
+    else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0) monthInputRef.current?.focus();
+  };
+
+  const handleDatePaste = (e) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text').trim();
+    const parts = parseDateParts(text);
+    setDate(`${parts.day} / ${parts.month} / ${parts.year}`);
+  };
+
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [calViewYear, setCalViewYear] = useState(() => new Date().getFullYear());
+  const [calViewMonth, setCalViewMonth] = useState(() => new Date().getMonth());
+
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  useEffect(() => {
+    if (!isCalendarOpen) return;
+    const handleOutsideClick = (e) => {
+      if (calendarPopoverRef.current && !calendarPopoverRef.current.contains(e.target)) setIsCalendarOpen(false);
+    };
+    document.addEventListener('pointerdown', handleOutsideClick);
+    return () => document.removeEventListener('pointerdown', handleOutsideClick);
+  }, [isCalendarOpen]);
+
+  const calendarDays = useMemo(() => {
+    const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+    const startDay = new Date(calViewYear, calViewMonth, 1).getDay();
+    const daysInPrev = new Date(calViewYear, calViewMonth, 0).getDate();
+    const days = [];
+    for (let i = startDay - 1; i >= 0; i--) days.push({ day: daysInPrev - i, isCurrentMonth: false });
+    for (let d = 1; d <= daysInMonth; d++) days.push({ day: d, isCurrentMonth: true });
+    const total = days.length <= 35 ? 35 : 42;
+    for (let n = 1; n <= total - days.length; n++) days.push({ day: n, isCurrentMonth: false });
+    return days;
+  }, [calViewYear, calViewMonth]);
+
+  const todayInfo = useMemo(() => { const n = new Date(); return { day: n.getDate(), month: n.getMonth(), year: n.getFullYear() }; }, []);
+  const selectedDateInfo = useMemo(() => ({
+    day: parseInt(dateDay, 10), month: parseInt(dateMonth, 10) - 1, year: parseInt(dateYear, 10)
+  }), [dateDay, dateMonth, dateYear]);
+
+  const handleToggleCalendar = (e) => {
+    e.stopPropagation();
+    if (!isCalendarOpen) {
+      const p = parseDateParts(date);
+      const y = parseInt(p.year, 10); const m = parseInt(p.month, 10);
+      if (!isNaN(y) && y > 1900 && y < 2100) setCalViewYear(y);
+      if (!isNaN(m) && m >= 1 && m <= 12) setCalViewMonth(m - 1);
+    }
+    setIsCalendarOpen(prev => !prev);
+  };
+
+  const handleSelectDay = (dayNum) => {
+    const dd = String(dayNum).padStart(2, '0');
+    const mm = String(calViewMonth + 1).padStart(2, '0');
+    setDate(`${dd} / ${mm} / ${calViewYear}`);
+    setIsCalendarOpen(false);
+  };
+
+  const renderDatePicker = () => (
+    <div className={styles.datePickerWrapper} ref={calendarPopoverRef}>
+      <div className={styles.stylishDateCard} onPaste={handleDatePaste}>
+        <div className={styles.dateSegmentsGroup}>
+          <div className={styles.dateSegmentPill}>
+            <input ref={dayInputRef} type="text" inputMode="numeric" className={styles.dateSegmentInput} placeholder="DD" value={dateDay} onChange={handleDayChange} onKeyDown={handleDayKeyDown} maxLength={2} aria-label="Day" />
+            <span className={styles.dateSegmentTag}>Day</span>
+          </div>
+          <span className={styles.dateSlashDivider}>/</span>
+          <div className={styles.dateSegmentPill}>
+            <input ref={monthInputRef} type="text" inputMode="numeric" className={styles.dateSegmentInput} placeholder="MM" value={dateMonth} onChange={handleMonthChange} onKeyDown={handleMonthKeyDown} maxLength={2} aria-label="Month" />
+            <span className={styles.dateSegmentTag}>Month</span>
+          </div>
+          <span className={styles.dateSlashDivider}>/</span>
+          <div className={`${styles.dateSegmentPill} ${styles.dateSegmentPillYear}`}>
+            <input ref={yearInputRef} type="text" inputMode="numeric" className={styles.dateSegmentInput} placeholder="YYYY" value={dateYear} onChange={handleYearChange} onKeyDown={handleYearKeyDown} maxLength={4} aria-label="Year" />
+            <span className={styles.dateSegmentTag}>Year</span>
+          </div>
+        </div>
+        <button type="button" className={`${styles.stylishCalendarIconBtn} ${isCalendarOpen ? styles.calendarBtnActive : ''}`} onClick={handleToggleCalendar} aria-label="Open calendar picker">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        </button>
+      </div>
+      {isCalendarOpen && (
+        <div className={styles.calendarPopover}>
+          <div className={styles.calendarHeader}>
+            <button type="button" className={styles.calendarNavBtn} onClick={(e) => { e.stopPropagation(); calViewMonth === 0 ? (setCalViewMonth(11), setCalViewYear(y => y - 1)) : setCalViewMonth(m => m - 1); }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            <div className={styles.calendarMonthTitle}>{MONTH_NAMES[calViewMonth]} {calViewYear}</div>
+            <button type="button" className={styles.calendarNavBtn} onClick={(e) => { e.stopPropagation(); calViewMonth === 11 ? (setCalViewMonth(0), setCalViewYear(y => y + 1)) : setCalViewMonth(m => m + 1); }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+          </div>
+          <div className={styles.calendarWeekdaysGrid}>
+            {['Su','Mo','Tu','We','Th','Fr','Sa'].map(w => <span key={w} className={styles.calendarWeekdayName}>{w}</span>)}
+          </div>
+          <div className={styles.calendarDaysGrid}>
+            {calendarDays.map((item, idx) => {
+              const isSelected = item.isCurrentMonth && selectedDateInfo.day === item.day && selectedDateInfo.month === calViewMonth && selectedDateInfo.year === calViewYear;
+              const isToday = item.isCurrentMonth && todayInfo.day === item.day && todayInfo.month === calViewMonth && todayInfo.year === calViewYear;
+              if (!item.isCurrentMonth) return <span key={idx} className={`${styles.calendarDayCell} ${styles.dayCellMuted}`}>{item.day}</span>;
+              return <button key={idx} type="button" className={`${styles.calendarDayCell} ${isSelected ? styles.dayCellSelected : ''} ${isToday ? styles.dayCellToday : ''}`} onClick={() => handleSelectDay(item.day)}>{item.day}</button>;
+            })}
+          </div>
+          <div className={styles.calendarFooter}>
+            <button type="button" className={styles.calendarQuickBtn} onClick={(e) => { e.stopPropagation(); const n = new Date(); setCalViewYear(n.getFullYear()); setCalViewMonth(n.getMonth()); handleSelectDay(n.getDate()); }}>Today</button>
+            <button type="button" className={styles.calendarCloseBtn} onClick={() => setIsCalendarOpen(false)}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   // Pre-load default Google Fonts on mount
   useEffect(() => {
@@ -245,8 +513,29 @@ const Certificate = () => {
     }
   };
 
-  const processFile = (file) => {
-    if (file && file.type.startsWith('image/')) {
+  const processFile = async (file) => {
+    if (!file) return;
+
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      setTemplateFileName(file.name);
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdfDoc.getPage(1);
+        const scale = 2.5;
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const dataUrl = canvas.toDataURL('image/png');
+        setTemplateImage(dataUrl);
+        setTemplateDimensions({ width: Math.round(viewport.width), height: Math.round(viewport.height) });
+      } catch (err) {
+        alert('Error reading PDF: ' + err.message);
+      }
+    } else if (file.type.startsWith('image/')) {
       setTemplateFileName(file.name);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -336,21 +625,6 @@ const Certificate = () => {
     }
   };
 
-  // Re-map columns when user alters the mapping dropdowns
-  const handleColumnMappingChange = (field, newCol) => {
-    const updatedMapping = { ...columnMapping, [field]: newCol };
-    setColumnMapping(updatedMapping);
-
-    setRecipients(prev => prev.map(rec => {
-      const raw = rec.rawData || {};
-      return {
-        ...rec,
-        name: field === 'name' ? (raw[newCol] || rec.name) : rec.name,
-        date: field === 'date' ? (raw[newCol] || rec.date) : rec.date,
-        content: field === 'content' ? (raw[newCol] || rec.content) : rec.content
-      };
-    }));
-  };
 
   // Manual Bulk Paste Handler
   const handleImportManualPaste = () => {
@@ -360,11 +634,14 @@ const Certificate = () => {
     setColumnMapping(detectedMapping);
     setUploadedFileName('Pasted_Data.txt');
 
+    // Use manualPasteContent if the user filled it in, otherwise fall back to the global content
+    const contentForAll = manualPasteContent.trim() || content;
+
     const newRecipients = rows.map((r, idx) => ({
       id: `pasted-${idx + 1}`,
       name: r[detectedMapping.name] || r.Name || `Recipient ${idx + 1}`,
       date: r[detectedMapping.date] || date,
-      content: r[detectedMapping.content] || content,
+      content: r[detectedMapping.content] || contentForAll,
       isSelected: true,
       rawData: r
     }));
@@ -373,6 +650,7 @@ const Certificate = () => {
     setActivePreviewIndex(0);
     setShowManualPaste(false);
     setManualPasteText('');
+    setManualPasteContent('');
   };
 
   // Recipients Table Row Handlers
@@ -589,6 +867,53 @@ const Certificate = () => {
     }
   };
 
+  // Bulk ZIP Download (Individual High-Quality PNGs)
+  const handleDownloadBulkPngZip = async () => {
+    if (!templateImage) return;
+    if (selectedRecipients.length === 0) {
+      alert('Please select at least one recipient to generate certificates.');
+      return;
+    }
+
+    abortRef.current = { cancelled: false };
+    setBulkProgress({
+      isOpen: true,
+      current: 0,
+      total: selectedRecipients.length,
+      percent: 0,
+      status: `Starting bulk PNG generation for ${selectedRecipients.length} recipients...`,
+      currentName: ''
+    });
+
+    try {
+      const baseConfig = getGeneratorBaseConfig();
+      await generateBulkPngsAsZip(
+        baseConfig,
+        selectedRecipients,
+        (progress) => {
+          setBulkProgress(prev => ({
+            ...prev,
+            current: progress.current,
+            total: progress.total,
+            percent: progress.percent,
+            status: progress.status,
+            currentName: progress.currentName
+          }));
+        },
+        abortRef
+      );
+
+      setTimeout(() => {
+        setBulkProgress(prev => ({ ...prev, isOpen: false }));
+      }, 1500);
+    } catch (err) {
+      if (!abortRef.current.cancelled) {
+        alert('Bulk generation error: ' + err.message);
+      }
+      setBulkProgress(prev => ({ ...prev, isOpen: false }));
+    }
+  };
+
   // Bulk Merged Multi-Page PDF Download
   const handleDownloadBulkMerged = async () => {
     if (!templateImage) return;
@@ -664,7 +989,7 @@ const Certificate = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Dynamic Certificate Studio</h1>
-        <p className={styles.subtitle}>Upload your custom certificate design, import bulk recipient data via Excel, and export print-ready PDFs.</p>
+        <p className={styles.subtitle}>Design stunning professional certificates — one at a time or in bulk. Upload your template, customize every detail, and export print-ready PDFs in seconds.</p>
       </div>
 
       <div className={styles.layout}>
@@ -695,8 +1020,7 @@ const Certificate = () => {
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
-              Bulk Excel / CSV
-              <span className={styles.modeBadge}>Bulk</span>
+              Bulk Certificates
             </button>
           </div>
 
@@ -778,10 +1102,11 @@ const Certificate = () => {
                   <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
                 <span className={styles.uploadText}>Upload Custom Certificate Template</span>
-                <span className={styles.uploadSubtext}>Drag &amp; drop or click to upload PNG, JPG, or SVG</span>
+                <span className={styles.uploadSubtext}>Drag &amp; drop or click to upload PNG, JPG, PDF or SVG</span>
                 <div className={styles.excelFormatsBadge} style={{ marginTop: '0.25rem' }}>
                   <span className={styles.formatTag}>PNG</span>
                   <span className={styles.formatTag}>JPG</span>
+                  <span className={styles.formatTag}>PDF</span>
                   <span className={styles.formatTag}>SVG</span>
                   <span className={styles.formatTag}>WEBP</span>
                 </div>
@@ -792,7 +1117,7 @@ const Certificate = () => {
               ref={fileInputRef}
               type="file" 
               className={styles.hiddenInput} 
-              accept="image/*" 
+              accept="image/*,.pdf" 
               onChange={handleFileChange}
             />
           </div>
@@ -822,12 +1147,7 @@ const Certificate = () => {
 
                 <div className={styles.controlGroup}>
                   <label className={styles.label}>Issuance Date</label>
-                  <input 
-                    type="date" 
-                    className={styles.input} 
-                    value={date} 
-                    onChange={(e) => setDate(e.target.value)}
-                  />
+                  {renderDatePicker()}
                 </div>
 
                 <div className={styles.controlGroup}>
@@ -971,8 +1291,8 @@ const Certificate = () => {
               {showManualPaste && (
                 <div className={styles.manualPasteContainer}>
                   <div className={styles.manualPasteHeader}>
-                    <span className={styles.manualPasteLabel}>Paste Recipient Names or CSV</span>
-                    <span className={styles.manualPasteSubtext}>One per line or tab-separated</span>
+                    <span className={styles.manualPasteLabel}>Paste Recipient Names</span>
+                    <span className={styles.manualPasteSubtext}>One per line</span>
                   </div>
                   <textarea 
                     className={styles.manualTextarea}
@@ -980,87 +1300,86 @@ const Certificate = () => {
                     value={manualPasteText}
                     onChange={(e) => setManualPasteText(e.target.value)}
                   />
+
+                  {/* Content for all */}
+                  <div className={styles.manualPasteDateWrapper} style={{ marginTop: '0.75rem' }}>
+                    <label className={styles.manualPasteDateLabel}>Course / Content (applied to all)</label>
+                    <textarea
+                      className={styles.manualTextarea}
+                      style={{ minHeight: '60px', marginTop: '0.4rem' }}
+                      placeholder="e.g. Full Stack Development Bootcamp"
+                      value={manualPasteContent}
+                      onChange={(e) => setManualPasteContent(e.target.value)}
+                    />
+                  </div>
+
+                  <div className={styles.manualPasteDateWrapper}>
+                    <label className={styles.manualPasteDateLabel}>Certificate Date (applied to all pasted names)</label>
+                    {renderDatePicker()}
+                  </div>
                   <button 
                     type="button" 
                     className={styles.importManualBtn}
                     onClick={handleImportManualPaste}
                   >
-                    Import Pasted Names
+                    Import
                   </button>
                 </div>
               )}
 
-              {/* Column Mapping Card */}
-              {rawHeaders.length > 0 && (
-                <div className={styles.mappingCard}>
-                  <div className={styles.mappingHeader}>
-                    <h5 className={styles.mappingTitle}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="12 2 2 7 12 12 22 7 12 2" />
-                        <polyline points="2 17 12 22 22 17" />
-                        <polyline points="2 12 12 17 22 12" />
-                      </svg>
-                      Column Field Mapping
-                    </h5>
-                  </div>
-                  <div className={styles.mappingGrid}>
-                    <div className={styles.mappingItem}>
-                      <label className={styles.mappingLabel}>Recipient Name *</label>
-                      <select 
-                        className={styles.mappingSelect}
-                        value={columnMapping.name}
-                        onChange={(e) => handleColumnMappingChange('name', e.target.value)}
-                      >
-                        {rawHeaders.map(h => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className={styles.mappingItem}>
-                      <label className={styles.mappingLabel}>Issue Date</label>
-                      <select 
-                        className={styles.mappingSelect}
-                        value={columnMapping.date || ''}
-                        onChange={(e) => handleColumnMappingChange('date', e.target.value)}
-                      >
-                        <option value="">(Use default date)</option>
-                        {rawHeaders.map(h => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className={styles.mappingItem}>
-                      <label className={styles.mappingLabel}>Course / Description</label>
-                      <select 
-                        className={styles.mappingSelect}
-                        value={columnMapping.content || ''}
-                        onChange={(e) => handleColumnMappingChange('content', e.target.value)}
-                      >
-                        <option value="">(Use default content)</option>
-                        {rawHeaders.map(h => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className={styles.mappingItem}>
-                      <label className={styles.mappingLabel}>Cert ID / Code</label>
-                      <select 
-                        className={styles.mappingSelect}
-                        value={columnMapping.id || ''}
-                        onChange={(e) => handleColumnMappingChange('id', e.target.value)}
-                      >
-                        <option value="">(None)</option>
-                        {rawHeaders.map(h => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
+              {/* Signature Upload — below paste row */}
+              <div className={styles.controlGroup}>
+                <label className={styles.label}>Official Signature</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleSignatureUpload}
+                    style={{ display: 'none' }}
+                    id="bulk-signature-file-input"
+                  />
+                  <label 
+                    htmlFor="bulk-signature-file-input"
+                    style={{ 
+                      flex: 1, 
+                      textAlign: 'center', 
+                      cursor: 'pointer',
+                      padding: '0.6rem',
+                      background: '#1d2d44',
+                      color: 'white',
+                      borderRadius: '6px',
+                      fontSize: '0.85rem',
+                      fontWeight: '500',
+                      transition: 'background 0.2s',
+                      display: 'inline-block'
+                    }}
+                  >
+                    {signatureImage ? 'Change Signature' : 'Upload Signature Image (PNG)'}
+                  </label>
+                  {signatureImage && (
+                    <button
+                      type="button"
+                      onClick={() => setSignatureImage('')}
+                      style={{
+                        padding: '0.6rem 0.8rem',
+                        background: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '0.85rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
-              )}
+                {signatureImage && (
+                  <img src={signatureImage} alt="Signature Preview" style={{ marginTop: '0.5rem', maxHeight: '50px', objectFit: 'contain', borderRadius: '4px' }} />
+                )}
+              </div>
+
 
               {/* Recipients Data Table */}
               <div className={styles.tableContainer}>
@@ -1177,56 +1496,6 @@ const Certificate = () => {
                       onClick={() => setRecipients([])}
                     >
                       Clear All
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Signature Upload in Bulk Mode */}
-              <div className={styles.controlGroup}>
-                <label className={styles.label}>Official Signature (Batch Endorsement)</label>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleSignatureUpload}
-                    style={{ display: 'none' }}
-                    id="bulk-signature-file-input"
-                  />
-                  <label 
-                    htmlFor="bulk-signature-file-input"
-                    style={{ 
-                      flex: 1, 
-                      textAlign: 'center', 
-                      cursor: 'pointer',
-                      padding: '0.6rem',
-                      background: '#1d2d44',
-                      color: 'white',
-                      borderRadius: '6px',
-                      fontSize: '0.85rem',
-                      fontWeight: '500',
-                      transition: 'background 0.2s',
-                      display: 'inline-block'
-                    }}
-                  >
-                    {signatureImage ? 'Change Signature' : 'Upload Signature Image (PNG)'}
-                  </label>
-                  {signatureImage && (
-                    <button
-                      type="button"
-                      onClick={() => setSignatureImage('')}
-                      style={{
-                        padding: '0.6rem 0.8rem',
-                        background: '#ef4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '0.85rem',
-                        fontWeight: '500'
-                      }}
-                    >
-                      Remove
                     </button>
                   )}
                 </div>
@@ -1362,9 +1631,6 @@ const Certificate = () => {
                         } else if (val === '700-italic') {
                           setNameWeight('700');
                           setNameItalic(true);
-                        } else if (val === '800-normal') {
-                          setNameWeight('800');
-                          setNameItalic(false);
                         }
                         loadGoogleFont(nameFont);
                       }}
@@ -1373,7 +1639,6 @@ const Certificate = () => {
                       <option value="400-italic">Italic</option>
                       <option value="700-normal">Bold</option>
                       <option value="700-italic">Bold Italic</option>
-                      <option value="800-normal">Heavy Bold</option>
                     </select>
                     <div className={styles.selectArrow}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1925,14 +2190,6 @@ const Certificate = () => {
 
           {/* Action Row & Download Buttons */}
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
-            
-            {/* Quality Tag Indicator */}
-            <div className={styles.qualityIndicatorTag}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Ultra High Quality 300 DPI Print Mode Active
-            </div>
 
             {mode === 'single' ? (
               /* Single Mode Download Buttons */
@@ -1984,19 +2241,37 @@ const Certificate = () => {
             ) : (
               /* Bulk Mode Download Buttons */
               <div className={styles.bulkActionButtons}>
-                <button
-                  type="button"
-                  className={styles.bulkZipBtn}
-                  onClick={handleDownloadBulkZip}
-                  disabled={!templateImage || selectedRecipients.length === 0}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  Download {selectedRecipients.length} Individual PDFs as ZIP Archive
-                </button>
+                <div className={styles.bulkActionButtonsWrapper}>
+                  <button
+                    type="button"
+                    className={styles.bulkZipBtn}
+                    onClick={handleDownloadBulkZip}
+                    disabled={!templateImage || selectedRecipients.length === 0}
+                    style={{ flex: 1 }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download {selectedRecipients.length} Individual PDFs as ZIP
+                  </button>
+
+                  <button
+                    type="button"
+                    className={styles.bulkZipBtn}
+                    onClick={handleDownloadBulkPngZip}
+                    disabled={!templateImage || selectedRecipients.length === 0}
+                    style={{ flex: 1 }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download {selectedRecipients.length} Individual PNGs as ZIP
+                  </button>
+                </div>
 
                 <button
                   type="button"

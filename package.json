@@ -1,7 +1,7 @@
 {
-  "name": "new-react",
+  "name": "dynamic-certificate-studio",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,15 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.2.0",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.2",
-    "motion": "^12.38.0",
+    "pdfjs-dist": "^6.3.289",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-icons": "^5.6.0",
-    "react-router-dom": "^7.15.1",
-    "styled-components": "^6.4.1",
+    "react-icons": "^5.7.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
