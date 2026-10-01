@@ -261,6 +261,7 @@ const Certificate = () => {
   const [dateColor, setDateColor] = useState('#1d2d44');
   const [dateWeight, setDateWeight] = useState('500');
   const [dateItalic, setDateItalic] = useState(false);
+  const [dateFormat, setDateFormat] = useState('DD/MM/YYYY');
 
   const [contentX, setContentX] = useState(50);
   const [contentY, setContentY] = useState(56);
@@ -323,26 +324,61 @@ const Certificate = () => {
   const parseDateParts = (dateStr) => {
     if (typeof dateStr !== 'string') return { day: '', month: '', year: '' };
     const clean = dateStr.trim();
+    if (!clean) return { day: '', month: '', year: '' };
+
+    // ISO format: YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
       const [y, m, d] = clean.split('-');
       return { day: d, month: m, year: y };
     }
-    const parts = clean.split(/[\/ -]/).map(p => p.trim()).filter(Boolean);
-    if (parts.length === 3) {
-      return { day: parts[0].slice(0, 2), month: parts[1].slice(0, 2), year: parts[2].slice(0, 4) };
+
+    // Slash separated: e.g. "DD / MM / YYYY" or " / 3 / 2026"
+    if (clean.includes('/')) {
+      const parts = clean.split('/');
+      return {
+        day: (parts[0] || '').trim().slice(0, 2),
+        month: (parts[1] || '').trim().slice(0, 2),
+        year: (parts[2] || '').trim().slice(0, 4)
+      };
     }
-    const now = new Date();
-    return {
-      day: String(now.getDate()).padStart(2, '0'),
-      month: String(now.getMonth() + 1).padStart(2, '0'),
-      year: String(now.getFullYear())
-    };
+
+    // Dash separated: e.g. "DD-MM-YYYY" or "YYYY-MM-DD"
+    if (clean.includes('-')) {
+      const parts = clean.split('-');
+      if (parts[0].trim().length === 4) {
+        return {
+          year: (parts[0] || '').trim().slice(0, 4),
+          month: (parts[1] || '').trim().slice(0, 2),
+          day: (parts[2] || '').trim().slice(0, 2)
+        };
+      }
+      return {
+        day: (parts[0] || '').trim().slice(0, 2),
+        month: (parts[1] || '').trim().slice(0, 2),
+        year: (parts[2] || '').trim().slice(0, 4)
+      };
+    }
+
+    // Space separated: e.g. "12 03 2026"
+    const spaceParts = clean.split(/\s+/).filter(Boolean);
+    if (spaceParts.length === 3) {
+      return {
+        day: spaceParts[0].slice(0, 2),
+        month: spaceParts[1].slice(0, 2),
+        year: spaceParts[2].slice(0, 4)
+      };
+    }
+
+    return { day: '', month: '', year: '' };
   };
 
   const { day: dateDay, month: dateMonth, year: dateYear } = parseDateParts(date);
 
   const handleDayChange = (e) => {
-    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+    let val = e.target.value.replace(/\D/g, '').slice(0, 2);
+    if (val.length === 2 && parseInt(val, 10) > 31) {
+      val = '31';
+    }
     setDate(`${val} / ${dateMonth} / ${dateYear}`);
     if (val.length === 2 && monthInputRef.current) {
       monthInputRef.current.focus();
@@ -351,7 +387,10 @@ const Certificate = () => {
   };
 
   const handleMonthChange = (e) => {
-    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+    let val = e.target.value.replace(/\D/g, '').slice(0, 2);
+    if (val.length === 2 && parseInt(val, 10) > 12) {
+      val = '12';
+    }
     setDate(`${dateDay} / ${val} / ${dateYear}`);
     if (val.length === 2 && yearInputRef.current) {
       yearInputRef.current.focus();
@@ -365,25 +404,46 @@ const Certificate = () => {
   };
 
   const handleDayKeyDown = (e) => {
-    if (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length) monthInputRef.current?.focus();
+    if (e.key === '/' || e.key === '-' || e.key === '.') {
+      e.preventDefault();
+      monthInputRef.current?.focus();
+      monthInputRef.current?.select();
+    } else if (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length) {
+      monthInputRef.current?.focus();
+    }
   };
 
   const handleMonthKeyDown = (e) => {
-    if (e.key === 'Backspace' && !dateMonth) dayInputRef.current?.focus();
-    else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0) dayInputRef.current?.focus();
-    else if (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length) yearInputRef.current?.focus();
+    if (e.key === '/' || e.key === '-' || e.key === '.') {
+      e.preventDefault();
+      yearInputRef.current?.focus();
+      yearInputRef.current?.select();
+    } else if (e.key === 'Backspace' && !dateMonth) {
+      dayInputRef.current?.focus();
+      dayInputRef.current?.select();
+    } else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0) {
+      dayInputRef.current?.focus();
+    } else if (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length) {
+      yearInputRef.current?.focus();
+    }
   };
 
   const handleYearKeyDown = (e) => {
-    if (e.key === 'Backspace' && !dateYear) monthInputRef.current?.focus();
-    else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0) monthInputRef.current?.focus();
+    if (e.key === 'Backspace' && !dateYear) {
+      monthInputRef.current?.focus();
+      monthInputRef.current?.select();
+    } else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0) {
+      monthInputRef.current?.focus();
+    }
   };
 
   const handleDatePaste = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text').trim();
     const parts = parseDateParts(text);
-    setDate(`${parts.day} / ${parts.month} / ${parts.year}`);
+    if (parts.day || parts.month || parts.year) {
+      setDate(`${parts.day} / ${parts.month} / ${parts.year}`);
+    }
   };
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -424,7 +484,9 @@ const Certificate = () => {
       const p = parseDateParts(date);
       const y = parseInt(p.year, 10); const m = parseInt(p.month, 10);
       if (!isNaN(y) && y > 1900 && y < 2100) setCalViewYear(y);
+      else setCalViewYear(new Date().getFullYear());
       if (!isNaN(m) && m >= 1 && m <= 12) setCalViewMonth(m - 1);
+      else setCalViewMonth(new Date().getMonth());
     }
     setIsCalendarOpen(prev => !prev);
   };
@@ -441,17 +503,53 @@ const Certificate = () => {
       <div className={styles.stylishDateCard} onPaste={handleDatePaste}>
         <div className={styles.dateSegmentsGroup}>
           <div className={styles.dateSegmentPill}>
-            <input ref={dayInputRef} type="text" inputMode="numeric" className={styles.dateSegmentInput} placeholder="DD" value={dateDay} onChange={handleDayChange} onKeyDown={handleDayKeyDown} maxLength={2} aria-label="Day" />
+            <input
+              ref={dayInputRef}
+              type="text"
+              inputMode="numeric"
+              className={styles.dateSegmentInput}
+              placeholder="DD"
+              value={dateDay}
+              onChange={handleDayChange}
+              onKeyDown={handleDayKeyDown}
+              onFocus={(e) => e.target.select()}
+              maxLength={2}
+              aria-label="Day"
+            />
             <span className={styles.dateSegmentTag}>Day</span>
           </div>
           <span className={styles.dateSlashDivider}>/</span>
           <div className={styles.dateSegmentPill}>
-            <input ref={monthInputRef} type="text" inputMode="numeric" className={styles.dateSegmentInput} placeholder="MM" value={dateMonth} onChange={handleMonthChange} onKeyDown={handleMonthKeyDown} maxLength={2} aria-label="Month" />
+            <input
+              ref={monthInputRef}
+              type="text"
+              inputMode="numeric"
+              className={styles.dateSegmentInput}
+              placeholder="MM"
+              value={dateMonth}
+              onChange={handleMonthChange}
+              onKeyDown={handleMonthKeyDown}
+              onFocus={(e) => e.target.select()}
+              maxLength={2}
+              aria-label="Month"
+            />
             <span className={styles.dateSegmentTag}>Month</span>
           </div>
           <span className={styles.dateSlashDivider}>/</span>
           <div className={`${styles.dateSegmentPill} ${styles.dateSegmentPillYear}`}>
-            <input ref={yearInputRef} type="text" inputMode="numeric" className={styles.dateSegmentInput} placeholder="YYYY" value={dateYear} onChange={handleYearChange} onKeyDown={handleYearKeyDown} maxLength={4} aria-label="Year" />
+            <input
+              ref={yearInputRef}
+              type="text"
+              inputMode="numeric"
+              className={styles.dateSegmentInput}
+              placeholder="YYYY"
+              value={dateYear}
+              onChange={handleYearChange}
+              onKeyDown={handleYearKeyDown}
+              onFocus={(e) => e.target.select()}
+              maxLength={4}
+              aria-label="Year"
+            />
             <span className={styles.dateSegmentTag}>Year</span>
           </div>
         </div>
@@ -774,7 +872,7 @@ const Certificate = () => {
       defaultContent: content,
       styles: {
         nameX, nameY, nameSize, nameFont, nameColor, nameWeight, nameItalic,
-        dateX, dateY, dateSize, dateFont, dateColor, dateWeight, dateItalic,
+        dateX, dateY, dateSize, dateFont, dateColor, dateWeight, dateItalic, dateFormat,
         contentX, contentY, contentSize, contentFont, contentColor, contentWeight, contentItalic,
         signX, signY, signSize,
         textAlign: 'center'
@@ -975,6 +1073,7 @@ const Certificate = () => {
   const handleReset = () => {
     setName('');
     setDate('');
+    setDateFormat('DD/MM/YYYY');
     setContent('');
     setSignatureImage('');
     handleRemoveTemplate();
@@ -1688,6 +1787,30 @@ const Certificate = () => {
                 </div>
 
                 <div className={styles.controlGroup}>
+                  <label className={styles.label}>Display Format</label>
+                  <div className={styles.selectWrapper}>
+                    <select
+                      className={styles.select}
+                      value={dateFormat}
+                      onChange={(e) => setDateFormat(e.target.value)}
+                    >
+                      <option value="DD/MM/YYYY">DD/MM/YYYY (Compact — 31/12/2026)</option>
+                      <option value="DD-MM-YYYY">DD-MM-YYYY (Hyphens — 31-12-2026)</option>
+                      <option value="DD.MM.YYYY">DD.MM.YYYY (Dots — 31.12.2026)</option>
+                      <option value="DD MMM YYYY">DD MMM YYYY (Formal — 31 Dec 2026)</option>
+                      <option value="DD MMMM YYYY">DD MMMM YYYY (Full Month — 31 December 2026)</option>
+                      <option value="MMMM DD, YYYY">Month DD, YYYY (December 31, 2026)</option>
+                      <option value="DD / MM / YYYY">DD / MM / YYYY (Spaced — 31 / 12 / 2026)</option>
+                    </select>
+                    <div className={styles.selectArrow}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.controlGroup}>
                   <label className={styles.label}>
                     Font Size <span className={styles.labelVal}>{dateSize}px</span>
                   </label>
@@ -2090,7 +2213,7 @@ const Certificate = () => {
               )}
 
               {/* Draggable Date Overlay */}
-              {previewDate && (
+              {previewDate && previewDate.replace(/[\/\s-]/g, '').length > 0 && (
                 <div 
                   className={`${styles.overlayText} ${activeDrag === 'date' ? styles.overlayTextActive : ''}`}
                   style={{
@@ -2108,7 +2231,7 @@ const Certificate = () => {
                   onPointerMove={(e) => handlePointerMove(e, 'date')}
                   onPointerUp={handlePointerUp}
                 >
-                  {formatDisplayDate(previewDate)}
+                  {formatDisplayDate(previewDate, dateFormat)}
                 </div>
               )}
 

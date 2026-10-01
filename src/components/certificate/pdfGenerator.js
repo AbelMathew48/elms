@@ -17,26 +17,72 @@ export const sanitizeFileName = (name) => {
     .slice(0, 50);
 };
 
+const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_NAMES_FULL = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
 /**
- * Format display date in stylish spaced DD / MM / YYYY format
+ * Format display date according to specified format pattern (default: DD/MM/YYYY compact)
  */
-export const formatDisplayDate = (dateStr) => {
+export const formatDisplayDate = (dateStr, format = 'DD/MM/YYYY') => {
   if (!dateStr) return '';
   const str = String(dateStr).trim();
+  if (!str.replace(/[\/\s-]/g, '')) return '';
+
+  let d = '', m = '', y = '';
+
   // Handle ISO format: YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-    const [y, m, d] = str.split('-');
-    return `${d} / ${m} / ${y}`;
+    const parts = str.split('-');
+    y = parts[0];
+    m = parts[1];
+    d = parts[2];
+  } else {
+    // Check if clean digits match DD/MM/YYYY or DD-MM-YYYY
+    const clean = str.replace(/\s+/g, '');
+    if (/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(clean)) {
+      const parts = clean.split(/[/-]/);
+      d = parts[0].padStart(2, '0');
+      m = parts[1].padStart(2, '0');
+      y = parts[2];
+    } else {
+      const slashParts = str.split('/').map(p => p.trim());
+      if (slashParts.length === 3 && slashParts[0] && slashParts[1] && slashParts[2]) {
+        d = slashParts[0].padStart(2, '0');
+        m = slashParts[1].padStart(2, '0');
+        y = slashParts[2];
+      }
+    }
   }
-  // Handle DD/MM/YYYY, DD-MM-YYYY, or already spaced DD / MM / YYYY
-  const clean = str.replace(/\s+/g, '');
-  if (/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(clean)) {
-    const parts = clean.split(/[/-]/);
-    const d = parts[0].padStart(2, '0');
-    const m = parts[1].padStart(2, '0');
-    const y = parts[2];
-    return `${d} / ${m} / ${y}`;
+
+  if (d && m && y) {
+    const mNum = parseInt(m, 10);
+    const mIdx = !isNaN(mNum) && mNum >= 1 && mNum <= 12 ? mNum - 1 : null;
+    const shortMonth = mIdx !== null ? MONTH_NAMES_SHORT[mIdx] : m;
+    const fullMonth = mIdx !== null ? MONTH_NAMES_FULL[mIdx] : m;
+
+    switch (format) {
+      case 'DD/MM/YYYY':
+        return `${d}/${m}/${y}`;
+      case 'DD-MM-YYYY':
+        return `${d}-${m}-${y}`;
+      case 'DD.MM.YYYY':
+        return `${d}.${m}.${y}`;
+      case 'DD MMM YYYY':
+        return `${d} ${shortMonth} ${y}`;
+      case 'DD MMMM YYYY':
+        return `${d} ${fullMonth} ${y}`;
+      case 'MMMM DD, YYYY':
+        return `${fullMonth} ${parseInt(d, 10)}, ${y}`;
+      case 'DD / MM / YYYY':
+        return `${d} / ${m} / ${y}`;
+      default:
+        return `${d}/${m}/${y}`;
+    }
   }
+
   return str;
 };
 
@@ -176,7 +222,7 @@ export const renderCertificateToCanvas = async ({
   }
 
   // 2. Draw Issuance Date
-  if (date) {
+  if (date && String(date).replace(/[\/\s-]/g, '').length > 0) {
     const fontSize = (styles.dateSize || 16) * scale;
     ctx.font = `${styles.dateItalic ? 'italic ' : ''}${styles.dateWeight || '400'} ${fontSize}px "${styles.dateFont || 'Montserrat'}", sans-serif`;
     ctx.fillStyle = styles.dateColor || '#1d2d44';
@@ -185,7 +231,7 @@ export const renderCertificateToCanvas = async ({
 
     const dx = (styles.dateX / 100) * targetWidth;
     const dy = (styles.dateY / 100) * targetHeight;
-    ctx.fillText(formatDisplayDate(date), dx, dy);
+    ctx.fillText(formatDisplayDate(date, styles.dateFormat), dx, dy);
   }
 
   // 3. Draw Certificate Content / Course Description
